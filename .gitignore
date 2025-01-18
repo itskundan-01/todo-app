@@ -1,0 +1,36 @@
+# Node modules
+/node_modules/
+
+# Environment variables
+/.env
+/backend/.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE and Editor folders
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Build directories
+/dist/
+/build/
+/frontend/build/
+/backend/dist/
+/backend/build/
+
+# Miscellaneous
+*.tgz
+*.lock

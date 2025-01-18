@@ -1,0 +1,108 @@
+.date-picker-container input[type="date"] {
+    padding: 10px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #ffffff;
+    cursor: pointer;
+  }
+  
+  .date-picker-container input[type="date"]::-webkit-calendar-picker-indicator {
+    font-size: 1.5em;
+    cursor: pointer;
+  }
+  
+  .red{
+    background-color: red;
+  }
+  .orange{
+    background-color: orange;
+  }
+  .yellow{
+    background-color: yellow;
+  }
+  .green{
+    background-color: green;
+  }
+  
+  .task-form {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 10px;
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    position: relative;
+    padding: 30px;
+    margin-left: -10px;
+  }
+  
+  .task-form > * {
+    margin-bottom: 0;
+  }
+  
+  .task-form > div {
+    padding: 15px;
+    border-radius: 5px;
+    /* background-color: #f9f9f9; */
+    border: 1px solid #ccc;
+  }
+  .task-form-header {
+    text-align: center;
+    font-size: 1.5em;
+    margin-bottom: 20px;
+    background-color: aqua;
+  }
+  
+  .task-form select,
+  .task-form input {
+    width: calc(100% - 10px);
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 1em;
+  }
+  
+  .task-form button {
+    padding: 12px 20px;
+    background-color: #2196F3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease;
+    margin-top: 15px;
+  }
+  
+  .task-form button:hover {
+    background-color: #1976D2;
+  }
+  
+  #close-btn {
+    position: absolute;
+    top: -37px;
+    right: -21px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  
+  .close-button img {
+    width: 25px;
+    height: 25px;
+  }
+  
+  @media (max-width: 600px) {
+    .task-form {
+      padding: 10px;
+    }
+  
+    .task-form button {
+      margin-top: 10px;
+    }
+  }

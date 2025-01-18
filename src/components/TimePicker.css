@@ -1,0 +1,110 @@
+.time-picker {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+    width: 100%;
+    max-width: 250px;
+    margin: 0 auto;
+  }
+  
+  .time-picker-input {
+    padding: 10px 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    min-width: 60px;
+    text-align: center;
+    background-color: #f8f9fa;
+    transition: all 0.3s ease;
+  }
+  
+  .time-picker-input:hover {
+    background-color: #e9ecef;
+  }
+  
+  .ampm-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #f8f9fa;
+  }
+  
+  .drawer {
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    width: 120px;
+  }
+  
+  .hours-drawer {
+    left: 0;
+    bottom: 100%;
+    margin-bottom: 5px;
+  }
+  
+  .minutes-drawer {
+    left: 50%;
+    bottom: 100%;
+    margin-bottom: 5px;
+    transform: translateX(-50%);
+  }
+  
+  .time-option {
+    padding: 10px 15px;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.2s ease;
+  }
+  
+  .time-option:hover {
+    background-color: #f0f0f0;
+  }
+  
+  /* Mobile Responsive Styles */
+  @media (max-width: 600px) {
+    .time-picker {
+      gap: 5px;
+      max-width: 100%;
+    }
+  
+    .time-picker-input {
+      padding: 10px;
+      min-width: 50px;
+      font-size: 14px;
+    }
+  
+    .drawer {
+      width: 100px;
+    }
+  
+    .time-option {
+      padding: 12px 10px;
+      font-size: 14px;
+    }
+  }
+  
+  /* Scrollbar Styles */
+  .drawer::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .drawer::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  .drawer::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+  
+  .drawer::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
