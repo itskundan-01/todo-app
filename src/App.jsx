@@ -215,7 +215,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
           <>
             <nav className="navbar">
               <div className="navbar-left">
-                <img src='/src/logo.png' alt="Logo" className="navbar-logo" />
+                <img src='./src/logo.png' alt="Logo" className="navbar-logo" />
                 <h1 className="navbar-title">To-Do List</h1>
               </div>
               <div className="navbar-search">
@@ -259,7 +259,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
                     </div>
                   ))}
 
-                {/* Today's Tasks tab*/}
+                {/* Today's Tasks */}
                 <div className="task-group today" ref={todayRef}>
                   <h2 className="task-group-date">
                     Today - {today.toLocaleDateString('en-US', {
