@@ -194,7 +194,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
   const Footer = () => (
     <footer className="app-footer">
       <p>
-        Developed by <a href="#" target="_blank" rel="noopener noreferrer">Kundan Kumar</a> <br/> 
+        Developed by <a href="https://kundanprojects.space" target="_blank" rel="noopener noreferrer">Kundan Kumar</a> <br/> 
         <a href="https://www.linkedin.com/in/itskundankumar/" target="_blank" rel="noopener noreferrer"> LinkedIn</a> | 
         <a href="https://forms.office.com/r/PnbtrSE827" target="_blank" rel="noopener noreferrer"> Feedback</a>
       </p>
