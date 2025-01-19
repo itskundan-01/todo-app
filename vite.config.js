@@ -8,5 +8,15 @@ export default defineConfig({
     // proxy: {
     //   '/api': 'http://localhost:5000'
     // }
+  },
+  build: {
+    rollupOptions: {
+      input: {
+        main: 'index.html',
+        sitemap: 'sitemap.xml',
+        robots: 'robots.txt'
+      }
+    }
   }
 })
+
