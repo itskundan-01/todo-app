@@ -215,7 +215,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
           <>
             <nav className="navbar">
               <div className="navbar-left">
-                <img src='./src/logo.png' alt="Logo" className="navbar-logo" />
+                <img src='https://raw.githubusercontent.com/itskundan-01/todo-app/2f791d5f244d86bb19470013c4f54cd349000029/src/logoIcon.png' alt="Logo" className="navbar-logo" />
                 <h1 className="navbar-title">To-Do List</h1>
               </div>
               <div className="navbar-search">
