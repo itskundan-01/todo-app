@@ -259,7 +259,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
                     </div>
                   ))}
 
-                {/* Today's Tasks */}
+                {/* Today's Tasks tab*/}
                 <div className="task-group today" ref={todayRef}>
                   <h2 className="task-group-date">
                     Today - {today.toLocaleDateString('en-US', {
