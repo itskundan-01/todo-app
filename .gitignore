@@ -2,7 +2,7 @@
 /node_modules/
 /backend/node_modules/
 # Environment variables
-/.env
+# /.env
 /backend/.env
 
 # Logs

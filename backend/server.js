@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: 'https://todo-app.kundanprojects.space',
+  origin: process.env.PUBLIC_URL,
   optionsSuccessStatus: 200
 };
 

@@ -5,9 +5,7 @@ import TaskForm from './TaskForm';
 import axios from 'axios';
 import Notification from './components/Notification';
 import avatar from './account.png';
-
-// Add this constant near the top (replace with your actual backend domain or public IP)
-const BASE_URL = 'https://api.todo-app.kundanprojects.space';
+import { API_BASE_URL } from './config';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -23,7 +21,7 @@ function App() {
   useEffect(() => {
     const fetchTasks = async () => {
       if (user) {
-        const { data } = await axios.get(`${BASE_URL}/api/tasks/${user._id}`);
+        const { data } = await axios.get(`${API_BASE_URL}/api/tasks/${user._id}`);
         setTasks(data);
       }
     };
@@ -45,7 +43,7 @@ function App() {
 
   const addTask = async (newTask) => {
     try {
-      const { data } = await axios.post(`${BASE_URL}/api/tasks`, { ...newTask, userId: user._id });
+      const { data } = await axios.post(`${API_BASE_URL}/api/tasks`, { ...newTask, userId: user._id });
       setTasks(prevTasks => {
         const updatedTasks = [...prevTasks, data];
         // Re-sort tasks after adding
@@ -60,7 +58,7 @@ function App() {
 
   const deleteTask = async (id) => {
     try {
-      await axios.delete(`${BASE_URL}/api/tasks/${id}`);
+      await axios.delete(`${API_BASE_URL}/api/tasks/${id}`);
       setTasks(tasks.filter((task) => task._id !== id));
       showNotification('Task deleted successfully!', 'success');
     } catch (error) {
@@ -72,7 +70,7 @@ function App() {
     try {
       const task = tasks.find((task) => task._id === id);
       const updatedTask = { ...task, completed: !task.completed };
-      const { data } = await axios.put(`${BASE_URL}/api/tasks/${id}`, updatedTask);
+      const { data } = await axios.put(`${API_BASE_URL}/api/tasks/${id}`, updatedTask);
       setTasks(tasks.map((task) => (task._id === id ? data : task)));
       
       if (data.completed) {
@@ -85,7 +83,7 @@ function App() {
 
   const editTask = async (id, updatedTask) => {
     try {
-      const { data } = await axios.put(`${BASE_URL}/api/tasks/${id}`, updatedTask);
+      const { data } = await axios.put(`${API_BASE_URL}/api/tasks/${id}`, updatedTask);
       setTasks(tasks.map((task) => (task._id === id ? data : task)));
     } catch (error) {
       console.error('Error editing task:', error);
@@ -140,7 +138,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
 
   const handleLogin = async (email, password) => {
     try {
-      const { data } = await axios.post(`${BASE_URL}/api/users/login`, { email, password });
+      const { data } = await axios.post(`${API_BASE_URL}/api/users/login`, { email, password });
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
       showNotification('Successfully logged in!', 'success');
@@ -154,7 +152,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
       if (password.length < 6) {
         throw new Error('Password must be at least 6 characters long');
       }
-      const { data } = await axios.post(`${BASE_URL}/api/users/register`, { name, email, password });
+      const { data } = await axios.post(`${API_BASE_URL}/api/users/register`, { name, email, password });
       setUser(data);
       localStorage.setItem('user', JSON.stringify(data));
       showNotification('Registration successful!', 'success');
