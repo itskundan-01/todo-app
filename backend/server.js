@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 const corsOptions = {
-  origin: 'https://todo-app.kundanprojects.space',
+  origin: process.env.PUBLIC_URL,
   optionsSuccessStatus: 200
 };
 
@@ -22,7 +22,11 @@ app.use(cors(corsOptions));
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
+  .then(() => {
+    console.log('MongoDB connected');
+    // Import/init scheduler only once DB connected
+    require('./scheduler');
+  })
   .catch(err => console.log(err));
 
 app.get('/', (req, res) => {
