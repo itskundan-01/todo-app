@@ -40,7 +40,13 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
+        window.OneSignal.setExternalUserId(user._id.toString())
+          .then(() => {
+            console.log('External user ID set:', user._id.toString());
+          })
+          .catch((error) => {
+            console.error('Error setting external user ID:', error);
+          });
       });
     }
   }, [user]);
