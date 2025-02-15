@@ -37,6 +37,14 @@ function App() {
     }
   }, [user, tasks]);
 
+  useEffect(() => {
+    if (user && window.OneSignal) {
+      window.OneSignal.push(() => {
+        window.OneSignal.setExternalUserId(user._id.toString());
+      });
+    }
+  }, [user]);
+
   const showNotification = (message, type) => {
     setNotification({ message, type });
   };
