@@ -38,25 +38,9 @@ function App() {
   }, [user, tasks]);
   
   useEffect(() => {
-    if (user && window.OneSignal && window.OneSignal.push) {
-      window.OneSignal.push(async function () {
-        try {
-          // Register the user for push notifications.
-          if (typeof window.OneSignal.registerForPushNotifications === "function") {
-            await window.OneSignal.registerForPushNotifications();
-          } else {
-            console.warn("registerForPushNotifications function is unavailable.");
-          }
-          // Set the external user id if available.
-          if (typeof window.OneSignal.setExternalUserId === "function") {
-            await window.OneSignal.setExternalUserId(user._id.toString());
-            console.log("External user id set via setExternalUserId.");
-          } else {
-            console.error("setExternalUserId is not available even after registration.");
-          }
-        } catch (error) {
-          console.error("Error during OneSignal push registration:", error);
-        }
+    if (user && window.OneSignal) {
+      window.OneSignal.push(() => {
+        window.OneSignal.setExternalUserId(user._id.toString());
       });
     }
   }, [user]);
