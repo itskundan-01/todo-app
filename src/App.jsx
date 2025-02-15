@@ -40,6 +40,11 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal && window.OneSignal.push) {
       window.OneSignal.push(() => {
+        // Explicitly trigger push registration if not already done.
+        if (typeof window.OneSignal.registerForPushNotifications === "function") {
+          window.OneSignal.registerForPushNotifications();
+        }
+        // Then wait a moment (or use a callback) before setting external user id.
         if (typeof window.OneSignal.setExternalUserId === "function") {
           window.OneSignal.setExternalUserId(user._id.toString())
             .then(() => {
