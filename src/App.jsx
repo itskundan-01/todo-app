@@ -36,17 +36,24 @@ function App() {
       });
     }
   }, [user, tasks]);
-
+  
   useEffect(() => {
-    if (user && window.OneSignal) {
+    if (user && window.OneSignal && window.OneSignal.push) {
       window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString())
-          .then(() => {
-            console.log('External user ID set:', user._id.toString());
-          })
-          .catch((error) => {
-            console.error('Error setting external user ID:', error);
-          });
+        if (typeof window.OneSignal.setExternalUserId === "function") {
+          window.OneSignal.setExternalUserId(user._id.toString())
+            .then(() => {
+              console.log("External user id set via setExternalUserId.");
+            })
+            .catch((error) => {
+              console.error("Error setting external user id:", error);
+            });
+        } else if (typeof window.OneSignal.sendTag === "function") {
+          window.OneSignal.sendTag("external_user_id", user._id.toString());
+          console.warn("setExternalUserId unavailable. Falling back to sendTag.");
+        } else {
+          console.error("Neither setExternalUserId nor sendTag is available on OneSignal.");
+        }
       });
     }
   }, [user]);
