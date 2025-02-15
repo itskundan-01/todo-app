@@ -38,35 +38,9 @@ function App() {
   }, [user, tasks]);
   
   useEffect(() => {
-    if (!user) return;
-
-    const waitForOneSignal = async () => {
-      // Wait for up to 10 seconds for window.OneSignal to become available
-      let attempts = 0;
-      while (
-        (!window.OneSignal || typeof window.OneSignal.push !== "function") &&
-        attempts < 20
-      ) {
-        console.warn("OneSignal not ready yet, waiting...");
-        await new Promise(resolve => setTimeout(resolve, 500)); // wait 0.5 sec
-        attempts++;
-      }
-      if (window.OneSignal && typeof window.OneSignal.push === "function") {
-        window.OneSignal.push(function() {
-          OneSignal.setExternalUserId(user._id.toString())
-            .then(() => {
-              console.log("External user id set:", user._id);
-            })
-            .catch((err) => {
-              console.error("Error setting external user id:", err);
-            });
-        });
-      } else {
-        console.error("OneSignal did not become available in time.");
-      }
-    };
-
-    waitForOneSignal();
+    if (user && window.OneSignal) {
+      window.OneSignal.push(["setExternalUserId", user._id.toString()]);
+    }
   }, [user]);
 
   const showNotification = (message, type) => {
