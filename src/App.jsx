@@ -39,25 +39,23 @@ function App() {
   
   useEffect(() => {
     if (user && window.OneSignal && window.OneSignal.push) {
-      window.OneSignal.push(() => {
-        // Explicitly trigger push registration if not already done.
-        if (typeof window.OneSignal.registerForPushNotifications === "function") {
-          window.OneSignal.registerForPushNotifications();
-        }
-        // Then wait a moment (or use a callback) before setting external user id.
-        if (typeof window.OneSignal.setExternalUserId === "function") {
-          window.OneSignal.setExternalUserId(user._id.toString())
-            .then(() => {
-              console.log("External user id set via setExternalUserId.");
-            })
-            .catch((error) => {
-              console.error("Error setting external user id:", error);
-            });
-        } else if (typeof window.OneSignal.sendTag === "function") {
-          window.OneSignal.sendTag("external_user_id", user._id.toString());
-          console.warn("setExternalUserId unavailable. Falling back to sendTag.");
-        } else {
-          console.error("Neither setExternalUserId nor sendTag is available on OneSignal.");
+      window.OneSignal.push(async function () {
+        try {
+          // Register the user for push notifications.
+          if (typeof window.OneSignal.registerForPushNotifications === "function") {
+            await window.OneSignal.registerForPushNotifications();
+          } else {
+            console.warn("registerForPushNotifications function is unavailable.");
+          }
+          // Set the external user id if available.
+          if (typeof window.OneSignal.setExternalUserId === "function") {
+            await window.OneSignal.setExternalUserId(user._id.toString());
+            console.log("External user id set via setExternalUserId.");
+          } else {
+            console.error("setExternalUserId is not available even after registration.");
+          }
+        } catch (error) {
+          console.error("Error during OneSignal push registration:", error);
         }
       });
     }
