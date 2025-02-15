@@ -38,10 +38,19 @@ function App() {
   }, [user, tasks]);
   
   useEffect(() => {
-    if (user && window.OneSignal) {
+    if (user && window.OneSignal && typeof window.OneSignal.setExternalUserId === 'function') {
+      // Push to OneSignal’s callback queue so it only runs after initialization
       window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
+        window.OneSignal.setExternalUserId(user._id.toString())
+          .then(() => {
+            console.log('External user ID set successfully.');
+          })
+          .catch((error) => {
+            console.error('Error setting external user ID:', error);
+          });
       });
+    } else {
+      console.warn('OneSignal is not ready or setExternalUserId not available.');
     }
   }, [user]);
 
