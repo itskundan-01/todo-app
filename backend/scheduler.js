@@ -3,52 +3,31 @@ const axios = require('axios');
 const mongoose = require('mongoose');
 require('dotenv').config();
 const { noTaskQuotes, withTaskQuotes } = require('./quotes');
+
+// Require your Task and User models as needed:
 const Task = require('./models/Task');
 const User = require('./models/User');
 
-//*******************
-// Helper function to parse date and time (12-hr format to 24-hr)
-//*******************
-const parseTaskDateTime = (dateStr, timeStr) => {
-  // Expecting timeStr to be in the format "HH:MM AM/PM"
-  const [timePart, meridiem] = timeStr.split(' ');
-  let [hours, minutes] = timePart.split(':').map(Number);
-  if (meridiem.toUpperCase() === 'PM' && hours !== 12) {
-    hours += 12;
-  }
-  if (meridiem.toUpperCase() === 'AM' && hours === 12) {
-    hours = 0;
-  }
-  // Create an ISO string in 24-hour format so that Date parses it correctly
-  const hoursStr = hours.toString().padStart(2, '0');
-  const minutesStr = minutes.toString().padStart(2, '0');
-  const dateTimeStr = `${dateStr}T${hoursStr}:${minutesStr}:00`;
-  return new Date(dateTimeStr);
-};
+// OneSignal configuration
+const ONE_SIGNAL_APP_ID = process.env.ONE_SIGNAL_APP_ID_ENV; // replace with your app ID
+const ONE_SIGNAL_REST_API_KEY = process.env.ONE_SIGNAL_REST_API_KEY_ENV; // replace with your key
 
 // Helper to send notification via OneSignal REST API
 const sendNotification = async (title, message, userIds = []) => {
-  const appId = process.env.ONE_SIGNAL_APP_ID_ENV;
-  const restApiKey = process.env.ONE_SIGNAL_REST_API_KEY_ENV;
-  if (!appId || !restApiKey) {
-    console.error('OneSignal configuration missing. Check ONE_SIGNAL_APP_ID_ENV and ONE_SIGNAL_REST_API_KEY_ENV.');
-    return;
-  }
   try {
     const payload = {
-      app_id: appId,
-      include_external_user_ids: userIds,
+      app_id: ONE_SIGNAL_APP_ID,
+      include_external_user_ids: userIds, // expect users’ external ids to be set in OneSignal
       contents: { en: message },
       headings: { en: title }
     };
-    const response = await axios.post("https://onesignal.com/api/v1/notifications", payload, {
+    await axios.post("https://onesignal.com/api/v1/notifications", payload, {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Basic ${restApiKey}`
+        "Authorization": `Basic ${ONE_SIGNAL_REST_API_KEY}`
       }
     });
     console.log(`Notification sent: ${title}`);
-    console.log('OneSignal API response:', response.data);
   } catch (error) {
     console.error('Error sending notification:', error.response?.data || error.message);
   }
@@ -67,8 +46,7 @@ cron.schedule('* * * * *', async () => {
   // Find tasks that are not completed and are upcoming
   const tasks = await Task.find({ completed: false });
   for (const task of tasks) {
-    // Use our helper function to correctly parse the task's date and time
-    const taskDateTime = parseTaskDateTime(task.date, task.time);
+    const taskDateTime = new Date(`${task.date} ${task.time}`);
     const diff = taskDateTime - now;
     if (diff > 0) {
       const hoursLeft = diff / (1000 * 60 * 60);
@@ -89,7 +67,7 @@ cron.schedule('* * * * *', async () => {
         if (user) {
           const title = "Task Reminder";
           const message = `Your task "${task.text}" is due in ${threshold}.`;
-          // Assuming OneSignal external user ID is set as user._id.toString()
+          // Assuming you’ve set OneSignal external user ID as user._id.toString()
           await sendNotification(title, message, [user._id.toString()]);
         }
       }
