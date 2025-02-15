@@ -38,9 +38,13 @@ function App() {
   }, [user, tasks]);
 
   useEffect(() => {
-    if (user && window.OneSignal) {
+    if (user && window.OneSignal && window.OneSignal.push) {
       window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
+        if (typeof window.OneSignal.setExternalUserId === 'function') {
+          window.OneSignal.setExternalUserId(user._id.toString());
+        } else {
+          console.warn("OneSignal.setExternalUserId is not available.");
+        }
       });
     }
   }, [user]);
