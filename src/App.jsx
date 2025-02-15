@@ -37,17 +37,17 @@ function App() {
     }
   }, [user, tasks]);
 
-  useEffect(() => {
-    if (user && window.OneSignal && window.OneSignal.push) {
-      window.OneSignal.push(() => {
-        if (typeof window.OneSignal.setExternalUserId === 'function') {
-          window.OneSignal.setExternalUserId(user._id.toString());
-        } else {
-          console.warn("OneSignal.setExternalUserId is not available.");
-        }
-      });
-    }
-  }, [user]);
+  // useEffect(() => {
+  //   if (user && window.OneSignal && window.OneSignal.push) {
+  //     window.OneSignal.push(() => {
+  //       if (typeof window.OneSignal.setExternalUserId === 'function') {
+  //         window.OneSignal.setExternalUserId(user._id.toString());
+  //       } else {
+  //         console.warn("OneSignal.setExternalUserId is not available.");
+  //       }
+  //     });
+  //   }
+  // }, [user]);
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
