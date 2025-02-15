@@ -28,9 +28,15 @@ const parseTaskDateTime = (dateStr, timeStr) => {
 
 // Helper to send notification via OneSignal REST API
 const sendNotification = async (title, message, userIds = []) => {
+  const appId = process.env.ONE_SIGNAL_APP_ID_ENV;
+  const restApiKey = process.env.ONE_SIGNAL_REST_API_KEY_ENV;
+  if (!appId || !restApiKey) {
+    console.error('OneSignal configuration missing. Check ONE_SIGNAL_APP_ID_ENV and ONE_SIGNAL_REST_API_KEY_ENV.');
+    return;
+  }
   try {
     const payload = {
-      app_id: process.env.ONE_SIGNAL_APP_ID_ENV,
+      app_id: appId,
       include_external_user_ids: userIds,
       contents: { en: message },
       headings: { en: title }
@@ -38,7 +44,7 @@ const sendNotification = async (title, message, userIds = []) => {
     const response = await axios.post("https://onesignal.com/api/v1/notifications", payload, {
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Basic ${process.env.ONE_SIGNAL_REST_API_KEY_ENV}`
+        "Authorization": `Basic ${restApiKey}`
       }
     });
     console.log(`Notification sent: ${title}`);

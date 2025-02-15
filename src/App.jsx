@@ -40,7 +40,14 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(() => {
-        console.log('OneSignal is available – skipping external ID setting.');
+        // Tell OneSignal which external user ID to use (using the user’s _id)
+        OneSignal.setExternalUserId(user._id.toString())
+          .then(() => {
+            console.log('External user id set:', user._id);
+          })
+          .catch((err) => {
+            console.error('Error setting external user id:', err);
+          });
       });
     } else {
       console.warn('OneSignal is not ready.');
