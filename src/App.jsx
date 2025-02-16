@@ -39,22 +39,19 @@ function App() {
 
   useEffect(() => {
     if (user) {
-      // Poll until OneSignal.setExternalUserId becomes available
-      const setOneSignalUserId = () => {
-        if (
-          window.OneSignal &&
-          typeof window.OneSignal.setExternalUserId === 'function'
-        ) {
-          window.OneSignal.setExternalUserId(user._id.toString())
+      const checkOneSignal = () => {
+        const os = window.OneSignal;
+        if (os && typeof os.setExternalUserId === 'function') {
+          os.setExternalUserId(user._id.toString())
             .then(() => console.log("External user ID set successfully"))
             .catch((error) => console.error("Error setting external user ID:", error));
         } else {
           console.warn("OneSignal.setExternalUserId not available, retrying...");
-          setTimeout(setOneSignalUserId, 2000);
+          setTimeout(checkOneSignal, 2000);
         }
       };
 
-      setOneSignalUserId();
+      checkOneSignal();
     }
   }, [user]);
 
