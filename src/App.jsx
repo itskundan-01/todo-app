@@ -28,13 +28,13 @@ function App() {
     fetchTasks();
   }, [user]);
 
-  // Set OneSignal External User ID
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString())
-          .then(() => console.log("External user ID set successfully"))
-          .catch((error) => console.error("Error setting external user ID:", error));
+        // Previously you may have used sendTags to attach user info:
+        window.OneSignal.sendTags({ userId: user._id.toString() })
+          .then(() => console.log("User ID tag sent successfully"))
+          .catch((error) => console.error("Error sending tag:", error));
       });
     }
   }, [user]);
