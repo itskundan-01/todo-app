@@ -2,6 +2,7 @@ const cron = require('node-cron');
 const axios = require('axios');
 const mongoose = require('mongoose');
 require('dotenv').config();
+const { noTaskQuotes, withTaskQuotes } = require('./quotes');
 const Task = require('./models/Task');
 const User = require('./models/User');
 
@@ -42,6 +43,11 @@ const sendNotification = async (title, message, userIds = []) => {
   } catch (error) {
     console.error('Error sending notification:', error.response?.data || error.message);
   }
+};
+
+// Utility to pick a random quote from an array
+const getRandomQuote = (quotesArray) => {
+  return quotesArray[Math.floor(Math.random() * quotesArray.length)];
 };
 
 // Task-Based Notification (runs every minute)

@@ -31,10 +31,7 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(() => {
-        // Previously you may have used sendTags to attach user info:
-        window.OneSignal.sendTags({ userId: user._id.toString() })
-          .then(() => console.log("User ID tag sent successfully"))
-          .catch((error) => console.error("Error sending tag:", error));
+        window.OneSignal.setExternalUserId(user._id.toString());
       });
     }
   }, [user]);
