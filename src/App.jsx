@@ -27,12 +27,10 @@ function App() {
     };
     fetchTasks();
   }, [user]);
-
+  
   useEffect(() => {
     if (user && window.OneSignal) {
-      window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
-      });
+      window.OneSignal.push(["setExternalUserId", user._id.toString()]);
     }
   }, [user]);
 
