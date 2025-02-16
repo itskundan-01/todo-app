@@ -38,14 +38,23 @@ function App() {
   }, [user, tasks]);
 
   useEffect(() => {
-    if (user && window.OneSignal && window.OneSignal.push) {
-      window.OneSignal.push(() => {
-        if (typeof window.OneSignal.setExternalUserId === 'function') {
-          window.OneSignal.setExternalUserId(user._id.toString());
+    if (user) {
+      // Poll until OneSignal.setExternalUserId becomes available
+      const setOneSignalUserId = () => {
+        if (
+          window.OneSignal &&
+          typeof window.OneSignal.setExternalUserId === 'function'
+        ) {
+          window.OneSignal.setExternalUserId(user._id.toString())
+            .then(() => console.log("External user ID set successfully"))
+            .catch((error) => console.error("Error setting external user ID:", error));
         } else {
-          console.warn("OneSignal.setExternalUserId is not available.");
+          console.warn("OneSignal.setExternalUserId not available, retrying...");
+          setTimeout(setOneSignalUserId, 2000);
         }
-      });
+      };
+
+      setOneSignalUserId();
     }
   }, [user]);
 
