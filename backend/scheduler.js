@@ -17,10 +17,17 @@ const sendNotification = async (title, message, userIds = []) => {
   try {
     const payload = {
       app_id: ONE_SIGNAL_APP_ID,
-      include_external_user_ids: userIds, // expect users’ external ids to be set in OneSignal
       contents: { en: message },
       headings: { en: title }
     };
+
+    // If no external user IDs are provided, target all subscribed users
+    if (userIds && userIds.length > 0) {
+      payload.include_external_user_ids = userIds;
+    } else {
+      payload.included_segments = ['Subscribed Users'];
+    }
+
     await axios.post("https://onesignal.com/api/v1/notifications", payload, {
       headers: {
         "Content-Type": "application/json",
