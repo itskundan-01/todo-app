@@ -30,7 +30,11 @@ function App() {
   
   useEffect(() => {
     if (user && window.OneSignal) {
-      window.OneSignal.push(["setExternalUserId", user._id.toString()]);
+      window.OneSignal.push(function (OneSignalInstance) {
+        OneSignalInstance.setExternalUserId(user._id.toString())
+          .then(() => console.log('External user ID set successfully'))
+          .catch((error) => console.error('Error setting external user ID:', error));
+      });
     }
   }, [user]);
 
