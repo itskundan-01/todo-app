@@ -8,6 +8,7 @@ const taskSchema = new mongoose.Schema({
   date: { type: String, required: true },
   time: { type: String, required: true },
   completed: { type: Boolean, default: false },
+  notificationsSent: { type: [String], default: [] }
 });
 
 const Task = mongoose.model('Task', taskSchema);

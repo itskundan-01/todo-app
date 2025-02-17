@@ -1,3 +1,5 @@
+"use strict";
+
 const cron = require('node-cron');
 const axios = require('axios');
 const mongoose = require('mongoose');
@@ -8,7 +10,6 @@ const User = require('./models/User');
 
 // Helper function to parse date and time (assumes time is in "HH:MM AM/PM" format)
 const parseTaskDateTime = (dateStr, timeStr) => {
-  // Split the time and meridiem
   const [timePart, meridiem] = timeStr.split(' ');
   let [hours, minutes] = timePart.split(':').map(Number);
   if (meridiem.toUpperCase() === 'PM' && hours !== 12) {
@@ -45,7 +46,7 @@ const sendNotification = async (title, message, userIds = []) => {
   }
 };
 
-// Utility to pick a random quote from an array
+// Utility function to pick a random quote from an array (if needed)
 const getRandomQuote = (quotesArray) => {
   return quotesArray[Math.floor(Math.random() * quotesArray.length)];
 };
@@ -54,13 +55,16 @@ const getRandomQuote = (quotesArray) => {
 cron.schedule('* * * * *', async () => {
   const now = new Date();
   const tasks = await Task.find({ completed: false });
+
   for (const task of tasks) {
     const taskDateTime = parseTaskDateTime(task.date, task.time);
     const diff = taskDateTime - now;
+
     if (diff > 0) {
       const hoursLeft = diff / (1000 * 60 * 60);
       const minutesLeft = diff / (1000 * 60);
       let threshold = "";
+
       if (hoursLeft <= 8 && hoursLeft > 2) {
         threshold = "8 hours";
       } else if (hoursLeft <= 2 && minutesLeft > 30) {
@@ -68,20 +72,32 @@ cron.schedule('* * * * *', async () => {
       } else if (hoursLeft <= 2 && minutesLeft <= 30) {
         threshold = "30 minutes";
       }
+
       if (threshold) {
-        const user = await User.findById(task.userId);
-        if (user) {
-          const title = "Task Reminder";
-          const message = `Your task "${task.text}" is due in ${threshold}.`;
-          console.log(`Sending notification to user ${user._id}: ${message}`);
-          await sendNotification(title, message, [user._id.toString()]);
+        // Ensure notificationsSent field exists (assume Task schema has notificationsSent: { type: [String], default: [] } )
+        const notificationsSent = task.notificationsSent || [];
+
+        // Only send if this threshold hasn't been notified before
+        if (!notificationsSent.includes(threshold)) {
+          const user = await User.findById(task.userId);
+          if (user) {
+            const title = "Task Reminder";
+            const message = `Your task "${task.text}" is due in ${threshold}.`;
+            console.log(`Sending notification to user ${user._id}: ${message}`);
+            await sendNotification(title, message, [user._id.toString()]);
+            
+            // Mark threshold as sent and update task
+            notificationsSent.push(threshold);
+            task.notificationsSent = notificationsSent;
+            await task.save();
+          }
         }
       }
     }
   }
 });
 
-// Daily Notifications at specific times (e.g., 8 AM and 9 AM)
+// Daily Notifications at 8 AM
 cron.schedule('0 8 * * *', async () => {
   const users = await User.find();
   const todayStr = new Date().toISOString().split('T')[0];
@@ -99,6 +115,7 @@ cron.schedule('0 8 * * *', async () => {
   }
 });
 
+// Daily Notifications at 9 AM
 cron.schedule('0 9 * * *', async () => {
   const users = await User.find();
   const todayStr = new Date().toISOString().split('T')[0];
