@@ -27,6 +27,18 @@ function App() {
     };
     fetchTasks();
   }, [user]);
+  
+  useEffect(() => {
+    if (user && window.OneSignal) {
+      window.OneSignal.push(function () {
+        window.OneSignal.setExternalUserId(user._id)
+          .then(() => console.log("External user ID set successfully"))
+          .catch((error) =>
+            console.error("Error setting external user ID:", error)
+          );
+      });
+    }
+  }, [user]);
 
   useEffect(() => {
     if (user && todayRef.current) {
@@ -36,14 +48,6 @@ function App() {
       });
     }
   }, [user, tasks]);
-
-  useEffect(() => {
-    if (user && window.OneSignal) {
-      window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
-      });
-    }
-  }, [user]);
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
