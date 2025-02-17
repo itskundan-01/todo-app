@@ -31,11 +31,14 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(function () {
-        window.OneSignal.setExternalUserId(user._id)
-          .then(() => console.log("External user ID set successfully"))
-          .catch((error) =>
-            console.error("Error setting external user ID:", error)
-          );
+        window.OneSignal.registerForPushNotifications();
+        window.OneSignal.setExternalUserId(user._id.toString())
+          .then(() => {
+            console.log("External user ID set successfully to", user._id);
+          })
+          .catch((error) => {
+            console.error("Error setting external user ID:", error);
+          });
       });
     }
   }, [user]);
@@ -192,10 +195,13 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
             <h3>{user.name}</h3>
             <p>{user.email}</p>
           </div>
-          <button className="logout-button" onClick={() => {
+          <button className="logout-button" onClick={() => { 
             localStorage.removeItem('user');
             setUser(null);
-          }}>Logout</button>
+            showNotification('Logged out successfully!', 'success');
+          }}>
+            Logout
+          </button>
         </div>
       )}
     </div>

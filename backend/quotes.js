@@ -173,5 +173,3 @@ const withTaskQuotes = [
 ];
 
 module.exports = { noTaskQuotes, withTaskQuotes };
-
-module.exports = { noTaskQuotes, withTaskQuotes };
