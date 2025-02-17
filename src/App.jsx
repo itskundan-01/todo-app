@@ -43,8 +43,10 @@ function App() {
           });
           // Set external user id using the logged-in user's _id.
           const externalUserId = user._id.toString();
-          await OneSignal.setExternalUserId(externalUserId);
-          console.log("External user ID set successfully:", externalUserId);
+          OneSignal.push(() => {
+            OneSignal.setExternalUserId(externalUserId);
+            console.log("External user ID set successfully:", externalUserId);
+          });
         } catch (error) {
           console.error("OneSignal setup error:", error);
         }
