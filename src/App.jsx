@@ -32,26 +32,17 @@ function App() {
   // Initialize OneSignal and set the external user ID using react-onesignal
   useEffect(() => {
     if (user) {
-      const initOneSignal = async () => {
-        try {
-          // Initialize OneSignal with your app id and options.
-          await OneSignal.init({
-            appId: OneSignalAppId, // Make sure OneSignalAppId is exported from your config.
-            notifyButton: {
-              enable: true,
-            },
-          });
-          // Set external user id using the logged-in user's _id.
-          const externalUserId = user._id.toString();
-          OneSignal.push(() => {
-            OneSignal.setExternalUserId(externalUserId);
-            console.log("External user ID set successfully:", externalUserId);
-          });
-        } catch (error) {
-          console.error("OneSignal setup error:", error);
-        }
-      };
-      initOneSignal();
+      // Ensure OneSignalDeferred exists
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: OneSignalAppId,
+          notifyButton: { enable: true },
+        });
+        // Use OneSignal.login() with the user’s _id as the external id
+        await OneSignal.login(user._id.toString());
+        console.log("External user ID set successfully:", user._id.toString());
+      });
     }
   }, [user]);
 

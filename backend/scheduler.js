@@ -33,12 +33,16 @@ const sendNotification = async (title, message, userIds = []) => {
       contents: { en: message },
       headings: { en: title }
     };
-    const response = await axios.post("https://onesignal.com/api/v1/notifications", payload, {
-      headers: {
-        "Content-Type": "application/json",
-        "Authorization": `Basic ${process.env.ONE_SIGNAL_REST_API_KEY_ENV}`
+    const response = await axios.post(
+      "https://onesignal.com/api/v1/notifications",
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Basic ${process.env.ONE_SIGNAL_REST_API_KEY_ENV}`
+        }
       }
-    });
+    );
     console.log(`Notification sent: ${title}`);
     console.log('OneSignal API response:', response.data);
   } catch (error) {
@@ -46,49 +50,48 @@ const sendNotification = async (title, message, userIds = []) => {
   }
 };
 
-// Utility function to pick a random quote from an array (if needed)
-const getRandomQuote = (quotesArray) => {
-  return quotesArray[Math.floor(Math.random() * quotesArray.length)];
-};
-
-// Task-Based Notification (runs every minute)
+// TASK-BASED NOTIFICATIONS (runs every minute)
+// Only consider tasks that are not completed and are due today.
 cron.schedule('* * * * *', async () => {
   const now = new Date();
-  const tasks = await Task.find({ completed: false });
+  // Use local date string in ISO format (YYYY-MM-DD) by using the 'en-CA' locale
+  const todayStr = now.toLocaleDateString('en-CA');
+  const tasks = await Task.find({ completed: false, date: todayStr });
 
+  // Define thresholds with their reminder intervals in milliseconds.
+  // The "targetTime" for the reminder is computed as deadline - threshold.
+  const thresholds = [
+    { value: 8 * 60 * 60 * 1000, label: "8 hours" },
+    { value: 2 * 60 * 60 * 1000, label: "2 hours" },
+    { value: 30 * 60 * 1000, label: "30 minutes" }
+  ];
+
+  // Process each task.
   for (const task of tasks) {
-    const taskDateTime = parseTaskDateTime(task.date, task.time);
-    const diff = taskDateTime - now;
+    const deadline = parseTaskDateTime(task.date, task.time);
 
-    if (diff > 0) {
-      const hoursLeft = diff / (1000 * 60 * 60);
-      const minutesLeft = diff / (1000 * 60);
-      let threshold = "";
+    // For each threshold, compute its target time and check if now is within a grace period.
+    for (const thr of thresholds) {
+      const targetTime = new Date(deadline.getTime() - thr.value);
+      // Set a grace period of 2 minutes to avoid repetitive notifications.
+      const gracePeriod = 2 * 60 * 1000;
 
-      if (hoursLeft <= 8 && hoursLeft > 2) {
-        threshold = "8 hours";
-      } else if (hoursLeft <= 2 && minutesLeft > 30) {
-        threshold = "2 hours";
-      } else if (hoursLeft <= 2 && minutesLeft <= 30) {
-        threshold = "30 minutes";
-      }
-
-      if (threshold) {
-        // Ensure notificationsSent field exists (assume Task schema has notificationsSent: { type: [String], default: [] } )
-        const notificationsSent = task.notificationsSent || [];
-
-        // Only send if this threshold hasn't been notified before
-        if (!notificationsSent.includes(threshold)) {
+      // Check if current time is within the target window.
+      if (now >= targetTime && (now - targetTime) < gracePeriod) {
+        // Ensure task.notificationsSent exists as an array.
+        if (!task.notificationsSent) {
+          task.notificationsSent = [];
+        }
+        // Only send if notification for this threshold wasn’t already sent.
+        if (!task.notificationsSent.includes(thr.label)) {
           const user = await User.findById(task.userId);
           if (user) {
             const title = "Task Reminder";
-            const message = `Your task "${task.text}" is due in ${threshold}.`;
+            const message = `Your task "${task.text}" is due in ${thr.label}.`;
             console.log(`Sending notification to user ${user._id}: ${message}`);
             await sendNotification(title, message, [user._id.toString()]);
-            
-            // Mark threshold as sent and update task
-            notificationsSent.push(threshold);
-            task.notificationsSent = notificationsSent;
+            // Mark this threshold as notified.
+            task.notificationsSent.push(thr.label);
             await task.save();
           }
         }
@@ -97,12 +100,14 @@ cron.schedule('* * * * *', async () => {
   }
 });
 
-// Daily Notifications at 8 AM
+// DAILY NOTIFICATIONS AT 8 AM
 cron.schedule('0 8 * * *', async () => {
   const users = await User.find();
-  const todayStr = new Date().toISOString().split('T')[0];
+  // Use local date string.
+  const todayStr = new Date().toLocaleDateString('en-CA');
+
   for (const user of users) {
-    const tasksToday = await Task.find({ userId: user._id, date: todayStr });
+    const tasksToday = await Task.find({ userId: user._id, date: todayStr, completed: false });
     let title, message;
     if (tasksToday.length === 0) {
       title = `Hello, ${user.name || "User"}!`;
@@ -115,12 +120,13 @@ cron.schedule('0 8 * * *', async () => {
   }
 });
 
-// Daily Notifications at 9 AM
+// DAILY NOTIFICATIONS AT 9 AM
 cron.schedule('0 9 * * *', async () => {
   const users = await User.find();
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Date().toLocaleDateString('en-CA');
+
   for (const user of users) {
-    const tasksToday = await Task.find({ userId: user._id, date: todayStr });
+    const tasksToday = await Task.find({ userId: user._id, date: todayStr, completed: false });
     let title, message;
     if (tasksToday.length === 0) {
       title = `Hello, ${user.name || "User"}!`;
