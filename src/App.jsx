@@ -31,7 +31,6 @@ function App() {
   useEffect(() => {
     if (user && window.OneSignal) {
       window.OneSignal.push(function () {
-        window.OneSignal.registerForPushNotifications();
         window.OneSignal.setExternalUserId(user._id.toString())
           .then(() => {
             console.log("External user ID set successfully to", user._id);
@@ -39,6 +38,25 @@ function App() {
           .catch((error) => {
             console.error("Error setting external user ID:", error);
           });
+      });
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (user && window.OneSignal) {
+      window.OneSignal.push(() => {
+        // Listen for subscription changes and set external ID once subscribed
+        OneSignal.on('subscriptionChange', isSubscribed => {
+          if (isSubscribed) {
+            OneSignal.setExternalUserId(user._id.toString())
+              .then(() => {
+                console.log("External user ID re-set successfully after subscription", user._id);
+              })
+              .catch((error) => {
+                console.error("Error setting external user ID after subscription", error);
+              });
+          }
+        });
       });
     }
   }, [user]);
