@@ -5,7 +5,8 @@ import TaskForm from './TaskForm';
 import axios from 'axios';
 import Notification from './components/Notification';
 import avatar from './account.png';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL, OneSignalAppId } from './config';
+import OneSignal from 'react-onesignal';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -28,6 +29,23 @@ function App() {
     fetchTasks();
   }, [user]);
 
+  // Initialize OneSignal and set the external user ID using react-onesignal
+  useEffect(() => {
+    if (user) {
+      // Ensure OneSignalDeferred exists
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: OneSignalAppId,
+          notifyButton: { enable: true },
+        });
+        // Use OneSignal.login() with the user’s _id as the external id
+        await OneSignal.login(user._id.toString());
+        console.log("External user ID set successfully:", user._id.toString());
+      });
+    }
+  }, [user]);
+
   useEffect(() => {
     if (user && todayRef.current) {
       todayRef.current.scrollIntoView({ 
@@ -36,14 +54,6 @@ function App() {
       });
     }
   }, [user, tasks]);
-
-  useEffect(() => {
-    if (user && window.OneSignal) {
-      window.OneSignal.push(() => {
-        window.OneSignal.setExternalUserId(user._id.toString());
-      });
-    }
-  }, [user]);
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
@@ -188,10 +198,13 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
             <h3>{user.name}</h3>
             <p>{user.email}</p>
           </div>
-          <button className="logout-button" onClick={() => {
+          <button className="logout-button" onClick={() => { 
             localStorage.removeItem('user');
             setUser(null);
-          }}>Logout</button>
+            showNotification('Logged out successfully!', 'success');
+          }}>
+            Logout
+          </button>
         </div>
       )}
     </div>
