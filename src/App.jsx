@@ -5,7 +5,8 @@ import TaskForm from './TaskForm';
 import axios from 'axios';
 import Notification from './components/Notification';
 import avatar from './account.png';
-import { API_BASE_URL } from './config';
+import { API_BASE_URL, OneSignalAppId } from './config';
+import OneSignal from 'react-onesignal';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -27,31 +28,28 @@ function App() {
     };
     fetchTasks();
   }, [user]);
-  
+
+  // Initialize OneSignal and set the external user ID using react-onesignal
   useEffect(() => {
-    if (user && window.OneSignal) {
-      window.OneSignal.push(async function() {
+    if (user) {
+      const initOneSignal = async () => {
         try {
-          // Get current subscription state
-          const isPushSupported = await window.OneSignal.isPushNotificationsSupported();
-          if (isPushSupported) {
-            // Wait for initialization
-            await window.OneSignal.init({
-              appId: "feebfa31-41e0-4455-be8e-1a8fb956fd2c",
-              notifyButton: {
-                enable: true,
-              },
-            });
-            
-            // Set external user ID
-            const externalUserId = user._id.toString();
-            await window.OneSignal.login(externalUserId);
-            console.log("External user ID set successfully:", externalUserId);
-          }
+          // Initialize OneSignal with your app id and options.
+          await OneSignal.init({
+            appId: OneSignalAppId, // Make sure OneSignalAppId is exported from your config.
+            notifyButton: {
+              enable: true,
+            },
+          });
+          // Set external user id using the logged-in user's _id.
+          const externalUserId = user._id.toString();
+          await OneSignal.setExternalUserId(externalUserId);
+          console.log("External user ID set successfully:", externalUserId);
         } catch (error) {
           console.error("OneSignal setup error:", error);
         }
-      });
+      };
+      initOneSignal();
     }
   }, [user]);
 
