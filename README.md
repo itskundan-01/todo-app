@@ -2,27 +2,65 @@
 
 # To-Do List Application
 
-This is a simple To-Do List application built with React. It allows users to manage their tasks efficiently with features such as adding, editing, deleting, and marking tasks as complete. The application also includes a search feature to filter tasks and a time selection feature that allows users to choose a time in 12-hour format with AM/PM options.
+A comprehensive task management application designed to help students and professionals organize their tasks, deadlines, and schedules efficiently. This full-stack application includes both regular task management and smart scheduling features for recurring tasks.
+
+![To-Do List App Screenshot](https://todo-app.kundanprojects.space/screenshot.png)
 
 ## Features
 
-- Add new tasks with text, priority, due date, and time.
-- Edit existing tasks.
-- Delete tasks.
-- Toggle task completion status.
-- Search functionality to filter tasks.
-- Time selection in 12-hour format with AM/PM options.
+### Task Management
+- Add new tasks with text, priority, due date, and time
+- Edit existing tasks with real-time updates
+- Delete tasks with confirmation
+- Toggle task completion status with visual indicators
+- Search functionality to filter tasks by text, date, or day
+- Visual countdown timers for upcoming deadlines
+- Color-coded priority system (Compulsory, High, Medium, Low)
+
+### Smart Scheduler
+- Create recurring tasks with multiple recurrence patterns:
+  - Hourly: Tasks that repeat at specified hourly intervals
+  - Daily: Tasks that occur on selected days of the week
+  - Weekly: Weekly recurring tasks on specific days
+  - Monthly: Tasks that repeat monthly (by date or pattern)
+- Preview generated task occurrences before creation
+- Automatic task generation based on recurrence patterns
+- Flexible date range selection for recurring tasks
+
+### User Experience
+- Responsive design for desktop and mobile devices
+- Intuitive navigation between task views
+- Visual grouping of tasks by date (Past, Today, Future)
+- Push notification support for task reminders
+- Auto-scrolling to today's tasks
+- Custom time picker with 12-hour format
+- User authentication system
+- Profile management
 
 ## Technologies Used
 
-- React
-- Vite
-- UUID for unique task IDs
-- CSS for styling
+### Frontend
+- React (with Hooks)
+- CSS for styling (custom components)
+- Vite for build tooling and development
+- Axios for API requests
+- OneSignal for push notifications
+
+### Backend
+- Node.js with Express
+- MongoDB with Mongoose ODM
+- JWT for authentication
+- BCrypt for password hashing
+- Node-cron for scheduling notifications
 
 ## Getting Started
 
-To run this project locally, follow these steps:
+### Prerequisites
+- Node.js (v14 or later)
+- MongoDB (local or Atlas)
+- npm or yarn
+
+### Installation
 
 1. Clone the repository:
    ```
@@ -39,20 +77,36 @@ To run this project locally, follow these steps:
    npm install
    ```
 
-4. Start the development server:
+4. Configure environment variables:
+   - Create a `.env` file in the root directory.
+   - Add the following variables:
+     ```
+     MONGO_URI=<your-mongodb-uri>
+     JWT_SECRET=<your-jwt-secret>
+     ONESIGNAL_APP_ID=<your-onesignal-app-id>
+     ```
+
+5. Start the development server:
    ```
    npm run dev
    ```
 
-5. Open your browser and go to `http://localhost:5000` to see the application in action.
+6. Open your browser and go to `http://localhost:5000` to see the application in action.
 
 ## Usage
 
+### Task Management
 - Use the input field to add a new task.
 - Select the priority, due date, and time for the task.
 - Click "Add Task" to save the task.
-- Use the search bar to filter tasks by text or due time.
+- Use the search bar to filter tasks by text, date, or day.
 - Click on the task to edit or delete it.
+- View countdown timers for upcoming deadlines.
+
+### Smart Scheduler
+- Create recurring tasks with hourly, daily, weekly, or monthly patterns.
+- Preview generated task occurrences before saving.
+- Select a date range for recurring tasks.
 
 ## License
 
