@@ -7,6 +7,7 @@ import Notification from './components/Notification';
 import avatar from './account.png';
 import { API_BASE_URL, OneSignalAppId } from './config';
 import OneSignal from 'react-onesignal';
+import NotificationOptIn from './NotificationOptIn';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -332,6 +333,7 @@ const { pastTasks, futureTasks } = filteredTasks.reduce((acc, task) => {
                 <TaskForm addTask={addTask} closeModal={() => setIsModalOpen(false)} />
               </div>
             </div>
+            <NotificationOptIn />
           </>
         ) : (
           <div className="landing-page">
