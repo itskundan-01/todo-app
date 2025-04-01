@@ -10,7 +10,8 @@ function TaskForm({ addTask, closeModal }) {
     priority: '',
     date: '',
     time: '',
-    completed: false
+    completed: false,
+    isRecurringInstance: false // Explicitly mark as non-recurring
   };
 
   const [task, setTask] = useState(initialState);
@@ -55,7 +56,10 @@ function TaskForm({ addTask, closeModal }) {
     }
 
     try {
-      const newTask = { ...task };
+      const newTask = { 
+        ...task, 
+        isRecurringInstance: false // Ensure it's not marked as recurring
+      };
       await addTask(newTask);
       setTask(initialState);
     } catch (error) {

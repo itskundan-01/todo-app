@@ -1,3 +1,5 @@
 User-agent: *
 Allow: /
+
+# Sitemap
 Sitemap: https://todo-app.kundanprojects.space/sitemap.xml
