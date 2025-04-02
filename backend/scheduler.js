@@ -9,6 +9,11 @@ const { noTaskQuotes, withTaskQuotes } = require('./quotes');
 const Task = require('./models/Task');
 const User = require('./models/User');
 
+// Helper function to get a random item from an array
+const getRandomQuote = (quotesArray) => {
+  return quotesArray[Math.floor(Math.random() * quotesArray.length)];
+};
+
 // Helper function to parse date and time (assumes time is in "HH:MM AM/PM" format)
 const parseTaskDateTime = (dateStr, timeStr) => {
   const [timePart, meridiem] = timeStr.split(' ');
@@ -135,10 +140,10 @@ cron.schedule('0 8 * * *', async () => {
     let title, message;
     if (tasksToday.length === 0) {
       title = `Hello, ${user.name || "User"}!`;
-      message = `Your task list is empty today—seize the day!`;
+      message = getRandomQuote(noTaskQuotes);
     } else {
       title = `Hello, ${user.name || "User"}!`;
-      message = `Keep up the great work with your tasks today.`;
+      message = getRandomQuote(withTaskQuotes);
     }
     await sendNotification(title, message, [user._id.toString()]);
   }
@@ -156,10 +161,10 @@ cron.schedule('0 9 * * *', async () => {
     let title, message;
     if (tasksToday.length === 0) {
       title = `Hello, ${user.name || "User"}!`;
-      message = `Your task list is empty today—seize the day!`;
+      message = getRandomQuote(noTaskQuotes);
     } else {
       title = `Hello, ${user.name || "User"}!`;
-      message = `Keep up the great work with your tasks today.`;
+      message = getRandomQuote(withTaskQuotes);
     }
     await sendNotification(title, message, [user._id.toString()]);
   }

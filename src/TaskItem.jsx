@@ -79,8 +79,13 @@ function TaskItem({ task, deleteTask, toggleComplete, editTask }) {
     ? 'lightcoral'
     : 'white';
 
+  const itemClass = `task-item ${task.isRecurring ? 'recurring' : ''} ${task.completed ? 'completed' : ''} ${isEditing ? 'editing' : ''}`;
+
   return (
-    <li className="task-item" style={{ backgroundColor: taskBackgroundColor }}>
+    <li 
+      className={itemClass} 
+      style={{ backgroundColor: taskBackgroundColor }}
+    >
       <div className={`custom-checkbox ${task.priority.toLowerCase()}`}>
         <input
           type="checkbox"
@@ -92,35 +97,42 @@ function TaskItem({ task, deleteTask, toggleComplete, editTask }) {
         </span>
       </div>
       {isEditing ? (
-        <>
-          <input
-            type="text"
-            value={editText}
-            onChange={handleEditChange}
-            maxLength={100}
-            autoFocus
-          />
-          <TimePicker time={editTime} setTime={setEditTime} />
+        <div className="task-edit-container">
+          <div className="task-edit-inputs">
+            <input
+              type="text"
+              value={editText}
+              onChange={handleEditChange}
+              maxLength={100}
+              autoFocus
+              className="task-edit-text"
+            />
+            <div className="task-edit-time">
+              <TimePicker time={editTime} setTime={setEditTime} />
+            </div>
+          </div>
           <div className="edit-buttons">
             <button 
-              className="icon-button"
+              className="icon-button save-btn"
               onClick={handleSaveEdit}
               title="Save"
             >
               <img src={tickIcon} alt="Save" />
             </button>
             <button 
-              className="icon-button"
+              className="icon-button cancel-btn"
               onClick={() => setIsEditing(false)}
               title="Cancel"
             >
               <img src={closeIcon} alt="Cancel" />
             </button>
           </div>
-        </>
+        </div>
       ) : (
         <>
-          <span className={task.completed ? 'completed' : ''}>{task.text}</span>
+          <span className={task.completed ? 'completed' : ''}>
+            {task.text}
+          </span>
           <div className="task-right-section">
             <div className={`timer ${timerClass}`}>{remainingTime}</div>
             <div className="task-buttons">

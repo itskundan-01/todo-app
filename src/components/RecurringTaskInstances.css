@@ -1,0 +1,15 @@
+.recurring-task-instances {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  gap: 20px;
+  padding-bottom: 80px; /* Space for FAB */
+}
+
+/* Remove the emoji indicator as requested */
+.task-item.recurring::after {
+  display: none;
+}
+
+/* Add other styles for recurring task instances if needed */
