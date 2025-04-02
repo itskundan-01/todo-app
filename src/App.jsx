@@ -10,7 +10,6 @@ import Notification from './components/Notification';
 import avatar from './account.png';
 import { API_BASE_URL, OneSignalAppId } from './config';
 import OneSignal from 'react-onesignal';
-import NotificationOptIn from './NotificationOptIn';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -482,14 +481,12 @@ function App() {
 
                 {/* Regular Task Form Modal */}
                 <div className={`modal ${isModalOpen ? 'show' : ''}`}>
-                  <div className="modal-content">
+                  <div className="modal-content task-form-modal">
                     <TaskForm addTask={addTask} closeModal={() => setIsModalOpen(false)} />
                   </div>
                 </div>
               </>
             )}
-
-            <NotificationOptIn />
           </>
         ) : (
           <>

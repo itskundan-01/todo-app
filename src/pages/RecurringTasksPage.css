@@ -369,6 +369,41 @@ header p {
   text-align: center;
 }
 
+/* Error message styling */
+.error-message {
+  background-color: rgba(255, 99, 71, 0.1);
+  border: 1px solid #ff6347;
+  color: #ff3b21;
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+  font-weight: 500;
+  text-align: center;
+  position: relative; /* For positioning the close button */
+}
+
+.close-error-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: #ff3b21;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background-color 0.3s;
+}
+
+.close-error-btn:hover {
+  background-color: rgba(255, 99, 71, 0.1);
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
   .recurring-tasks-page {
@@ -496,16 +531,17 @@ header p {
 
 .close-modal-btn {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background: none;
+  top: 50px;
+  right: 30px;
+  background-color: rgb(255, 41, 41);
   border: none;
-  font-size: 24px;
+  font-size: 28px;
+  font-weight: bold;
   cursor: pointer;
-  color: #666;
+  color: #ffffff;
   transition: color 0.2s;
-  width: 40px;
-  height: 40px;
+  width: 30px;
+  height: 30px;
   display: flex;
   align-items: center;
   justify-content: center;

@@ -284,6 +284,11 @@ function RecurringTasksPage() {
     return `"${taskData.title}" will occur ${recurrenceText} starting from ${taskData.startDate}${taskData.endDate ? ` until ${taskData.endDate}` : ''}`;
   };
 
+  // Add function to handle closing the error message
+  const handleCloseError = () => {
+    setLoadError('');
+  };
+
   return (
     <div className="recurring-tasks-page">
       <header>
@@ -294,7 +299,16 @@ function RecurringTasksPage() {
       {isLoading ? (
         <div className="loading-indicator">Loading your recurring tasks...</div>
       ) : loadError ? (
-        <div className="error-message">{loadError}</div>
+        <div className="error-message">
+          {loadError}
+          <button 
+            className="close-error-btn" 
+            onClick={handleCloseError}
+            aria-label="Close error message"
+          >
+            ×
+          </button>
+        </div>
       ) : (
         <RecurringTaskInstances 
           recurringTasks={recurringTasks} 

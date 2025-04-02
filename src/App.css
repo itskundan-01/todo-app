@@ -412,10 +412,11 @@
     display: flex;
 }
 
+/* Modal styling updates */
 .modal-content {
     background-color: #fff;
     border-radius: 12px;
-    padding: 5px;
+    padding: 0;
     width: 90%;
     max-width: 800px;
     max-height: 90vh;
@@ -423,6 +424,22 @@
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     animation: modalFadeIn 0.3s;
     position: relative;
+}
+
+/* Fix task form modal width while keeping clean background */
+.task-form-modal {
+    width: 90%; /* Match the standard modal width */
+    max-width: 550px; /* Increased from 500px for better fit */
+    background: transparent;
+    box-shadow: none;
+}
+
+/* Fix task form when inside the modal */
+.task-form-modal .task-form {
+    margin: 0;
+    width: 100%; /* Ensure form takes full width of modal */
+    box-sizing: border-box;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
 }
 
 @keyframes modalFadeIn {
@@ -446,6 +463,11 @@
         max-height: 85vh;
         padding: 0;
         margin: 0;
+    }
+
+    .task-form-modal {
+        width: 95%;
+        max-width: none; /* Allow full width on mobile */
     }
 }
 
