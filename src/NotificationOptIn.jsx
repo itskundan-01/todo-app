@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 function NotificationOptIn() {
   const [isOptedIn, setIsOptedIn] = useState(null);
+  const notificationBtnRef = useRef(null);
+  const [showPrompt, setShowPrompt] = useState(false);
 
   useEffect(() => {
     if (window.OneSignal) {
@@ -13,7 +15,25 @@ function NotificationOptIn() {
     }
   }, []);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (showPrompt && notificationBtnRef.current && 
+          !notificationBtnRef.current.contains(event.target)) {
+        setShowPrompt(false);
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showPrompt]);
+
   const handleEnableNotifications = () => {
+    setShowPrompt(true);
     if (window.OneSignal) {
       window.OneSignal.push(() => {
         window.OneSignal.showNativePrompt();
@@ -26,6 +46,7 @@ function NotificationOptIn() {
 
   return (
     <button 
+      ref={notificationBtnRef}
       onClick={handleEnableNotifications}
       style={{
         position: 'fixed',

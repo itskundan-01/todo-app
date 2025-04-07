@@ -40,6 +40,8 @@ function RecurringTasksPage() {
 
   const [shouldScrollToToday, setShouldScrollToToday] = useState(true);
 
+  const modalContentRef = useRef(null);
+
   // Fetch existing recurring tasks when the component mounts
   useEffect(() => {
     fetchRecurringTasks();
@@ -77,6 +79,28 @@ function RecurringTasksPage() {
     
     return () => clearTimeout(timer);
   }, []);
+
+  // Handle outside clicks for modal
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (isModalOpen && modalContentRef.current && 
+          !modalContentRef.current.contains(event.target)) {
+        // Only close if we're clicking on the backdrop (not inside the modal)
+        // Check if the click is on the modal backdrop itself
+        if (event.target.classList.contains('scheduler-modal')) {
+          closeModal();
+        }
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isModalOpen]);
 
   // Handle deletion of recurring tasks
   const deleteRecurringTask = async (taskId) => {
@@ -324,7 +348,7 @@ function RecurringTasksPage() {
 
       {/* Modal system */}
       <div className={`scheduler-modal ${isModalOpen ? 'show' : ''}`}>
-        <div className="scheduler-modal-content">
+        <div className="scheduler-modal-content" ref={modalContentRef}>
           {showOptionsModal && (
             <SchedulerOptions onSelect={handleOptionSelect} onClose={closeModal} />
           )}
