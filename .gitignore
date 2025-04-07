@@ -36,4 +36,4 @@ Thumbs.db
 *.lock
 .env
 .gitignore
-command.txt
+server_Deployed_Code.txt
