@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './TimePicker.css';
 
 function TimePicker({ time, setTime }) {
@@ -7,6 +7,8 @@ function TimePicker({ time, setTime }) {
   const [ampm, setAmpm] = useState('AM');
   const [showHourDrawer, setShowHourDrawer] = useState(false);
   const [showMinuteDrawer, setShowMinuteDrawer] = useState(false);
+
+  const timePickerRef = useRef(null);
 
   // Define specific minute intervals
   const minuteIntervals = ['00', '10','15', '20','25', '30','35','40' , '45','50','55'];
@@ -30,8 +32,25 @@ function TimePicker({ time, setTime }) {
     }
   }, [hours, minutes, ampm, time, setTime]);
 
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (timePickerRef.current && !timePickerRef.current.contains(event.target)) {
+        setShowHourDrawer(false);
+        setShowMinuteDrawer(false);
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   return (
-    <div className="time-picker">
+    <div className="time-picker" ref={timePickerRef}>
       <div className="time-picker-input" onClick={() => setShowHourDrawer(!showHourDrawer)}>
         {hours || 'HH'}
       </div>

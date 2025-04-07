@@ -1031,6 +1031,32 @@
         font-size: 14px;
     }
 
+    .navbar-title {
+        display: none; /* Hide "To-Do List" text on small screens */
+    }
+    
+    /* Replace search bar with icon on small screens */
+    .navbar-search {
+        max-width: 40px;
+        margin-left: auto;
+    }
+    
+    .navbar-search input {
+        display: none; /* Hide the actual search input */
+    }
+    
+    .navbar-search::before {
+        content: "🔍";
+        font-size: 1.2rem;
+        cursor: pointer;
+        margin-right: 5px;
+    }
+    
+    /* Adjust spacing between navbar elements */
+    .navbar-links {
+        gap: 5px;
+        margin: 0 5px;
+    }
 }
 
 .edit-buttons {

@@ -27,6 +27,10 @@ function App() {
   const [hideNavbar, setHideNavbar] = useState(false);
   const lastScrollPosition = useRef(0);
   const scrollTimer = useRef(null);
+  const taskFormRef = useRef(null);
+  const taskOptionsRef = useRef(null);
+  const profileRef = useRef(null);
+  const authFormRef = useRef(null);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -120,6 +124,44 @@ function App() {
       }
     };
   }, []);
+
+  useEffect(() => {
+    function handleClickOutside(event) {
+      // Task options modal
+      if (showTaskOptions && taskOptionsRef.current && 
+          !taskOptionsRef.current.contains(event.target)) {
+        setShowTaskOptions(false);
+      }
+      
+      // Regular task form modal
+      if (isModalOpen && taskFormRef.current && 
+          !taskFormRef.current.contains(event.target)) {
+        setIsModalOpen(false);
+      }
+      
+      // Profile dropdown
+      if (showProfile && profileRef.current && 
+          !profileRef.current.contains(event.target)) {
+        setShowProfile(false);
+      }
+      
+      // Auth form
+      if (showAuth && authFormRef.current && 
+          !authFormRef.current.contains(event.target)) {
+        // Don't close auth form on outside click as it's a critical form
+        // Uncomment the line below if you want this behavior
+        // setShowAuth(false);
+      }
+    }
+    
+    // Add event listener
+    document.addEventListener('mousedown', handleClickOutside);
+    
+    // Cleanup
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showTaskOptions, isModalOpen, showProfile, showAuth]);
 
   const showNotification = (message, type) => {
     setNotification({ message, type });
@@ -284,7 +326,7 @@ function App() {
   };
 
   const UserProfile = () => (
-    <div className="user-profile">
+    <div className="user-profile" ref={profileRef}>
       <button className="profile-button" onClick={() => setShowProfile(!showProfile)}>
         <img src={avatar} alt="Profile" />
       </button>
@@ -471,7 +513,7 @@ function App() {
                 
                 {/* Task Options Modal */}
                 <div className={`modal ${showTaskOptions ? 'show' : ''}`}>
-                  <div className="modal-content">
+                  <div className="modal-content" ref={taskOptionsRef}>
                     <SchedulerOptions
                       onSelect={handleTaskOptionSelect}
                       onClose={handleCloseTaskOptions}
@@ -481,7 +523,7 @@ function App() {
 
                 {/* Regular Task Form Modal */}
                 <div className={`modal ${isModalOpen ? 'show' : ''}`}>
-                  <div className="modal-content task-form-modal">
+                  <div className="modal-content task-form-modal" ref={taskFormRef}>
                     <TaskForm addTask={addTask} closeModal={() => setIsModalOpen(false)} />
                   </div>
                 </div>
@@ -505,7 +547,7 @@ function App() {
                 />
               </>
             ) : (
-              <div className="auth-container">
+              <div className="auth-container" ref={authFormRef}>
                 {isLogin ? (
                   <div className="auth-form">
                     <h2 className='auth-header'>Login</h2>
