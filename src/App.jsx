@@ -204,14 +204,62 @@ function App() {
   }, []);
 
   useEffect(() => {
+    const handleResetPasswordLink = () => {
+      // First check URL
+      const url = new URL(window.location.href);
+      const token = url.pathname.match(/\/reset-password\/([^\/]+)/);
+      
+      // Check if token is in URL
+      if (token && token[1]) {
+        setResetToken(token[1]);
+        setForgotPasswordMode(true);
+        setShowAuth(true);
+        window.history.replaceState({}, '', '/');
+        return;
+      }
+      
+      // If not in URL, check session storage (from 404.html redirect)
+      const storedToken = sessionStorage.getItem('passwordResetToken');
+      if (storedToken) {
+        // Clear it immediately to prevent reuse
+        sessionStorage.removeItem('passwordResetToken');
+        setResetToken(storedToken);
+        setForgotPasswordMode(true);
+        setShowAuth(true);
+      }
+    };
+
+    // Run once on component mount
+    handleResetPasswordLink();
+
+    // Also listen for route changes
+    window.addEventListener('popstate', handleResetPasswordLink);
+    return () => {
+      window.removeEventListener('popstate', handleResetPasswordLink);
+    };
+  }, []);
+
+  useEffect(() => {
+    // Check if there's a password reset token in sessionStorage (from 404.html redirect)
+    const storedToken = sessionStorage.getItem('passwordResetToken');
+    if (storedToken) {
+      // Clear token from sessionStorage to prevent reuse
+      sessionStorage.removeItem('passwordResetToken');
+      // Set the token in your app state
+      setResetToken(storedToken);
+      setForgotPasswordMode(true);
+      setShowAuth(true);
+    }
+    
+    // Also check URL for direct navigation
     const url = new URL(window.location.href);
     const token = url.pathname.match(/\/reset-password\/([^\/]+)/);
     if (token && token[1]) {
       setResetToken(token[1]);
       setForgotPasswordMode(true);
       setShowAuth(true);
-      // Remove token from URL to prevent security issues
-      window.history.pushState({}, '', '/');
+      // Clean up URL without causing a refresh
+      window.history.replaceState({}, '', '/');
     }
   }, []);
 
