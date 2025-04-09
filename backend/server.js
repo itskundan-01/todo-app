@@ -7,10 +7,14 @@ const cors = require('cors');
 const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const recurringTaskRoutes = require('./routes/recurringTaskRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
-// Debugging: Verify if MONGO_URI is loaded
+// Debugging: Verify if environment variables are loaded
 console.log('MONGO_URI:', process.env.MONGO_URI ? 'Found' : 'Not Found');
 console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
+console.log('EMAIL_HOST:', process.env.EMAIL_HOST ? 'Found' : 'Not Found');
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Found' : 'Not Found');
+console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Found' : 'Not Found');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,11 +51,114 @@ app.get('/', (req, res) => {
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/recurring-tasks', recurringTaskRoutes);
+app.use('/api/admin', adminRoutes);
+
+// Debugging route to list all registered routes
+app.get('/api/routes', (req, res) => {
+  const routes = [];
+  
+  // Helper function to print routes
+  const print = (path, layer) => {
+    if (layer.route) {
+      layer.route.stack.forEach(print.bind(null, path + layer.route.path));
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      layer.handle.stack.forEach(print.bind(null, path + (layer.regexp ? layer.regexp.source.replace(/\\\//g, '/').replace(/\^\|\\\//, '/').replace(/\\\/.+$/, '') : '')));
+    } else if (layer.method) {
+      routes.push({ 
+        method: layer.method.toUpperCase(), 
+        path: path
+      });
+    }
+  };
+
+  app._router.stack.forEach(print.bind(null, ''));
+  
+  res.json({ routes });
+});
+
+// Testing route specifically for forgot password
+app.get('/test-forgot-password', (req, res) => {
+  res.json({ 
+    message: "This is a test endpoint for forgot password",
+    configuredRoutes: {
+      forgotPasswordExists: typeof userRoutes?.stack?.find(r => 
+        r.route?.path === '/forgot-password' && 
+        r.route?.methods?.post) !== 'undefined'
+    }
+  });
+});
+
+// Debugging route to check if forgot-password endpoint is registered
+app.get('/api/routes-debug', (req, res) => {
+  // This will help you check if routes are correctly registered
+  const routes = [];
+  app._router.stack.forEach(middleware => {
+    if (middleware.route) { 
+      // routes registered directly on the app
+      routes.push(`${Object.keys(middleware.route.methods)} ${middleware.route.path}`);
+    } else if (middleware.name === 'router') { 
+      // router middleware
+      middleware.handle.stack.forEach(handler => {
+        const route = handler.route;
+        if (route) {
+          route.path = route.path === '/' ? '' : route.path;
+          routes.push(`${Object.keys(route.methods)} ${middleware.regexp} ${route.path}`);
+        }
+      });
+    }
+  });
+  res.json(routes);
+});
+
+// Debugging route to check if forgot-password endpoint is registered
+app.get('/api/check-routes', (req, res) => {
+  // This will help you check if routes are correctly registered
+  const routes = [];
+  
+  // Helper function to print routes
+  const print = (path, layer) => {
+    if (layer.route) {
+      layer.route.stack.forEach(print.bind(null, path + layer.route.path));
+    } else if (layer.name === 'router' && layer.handle.stack) {
+      layer.handle.stack.forEach(print.bind(null, path + (layer.regexp ? layer.regexp.source.replace(/\\\//g, '/').replace(/\^\|\\\//, '/').replace(/\\\/.+$/, '') : '')));
+    } else if (layer.method) {
+      routes.push({ 
+        method: layer.method.toUpperCase(), 
+        path: path
+      });
+    }
+  };
+
+  app._router.stack.forEach(print.bind(null, ''));
+  
+  res.json({
+    routesCount: routes.length,
+    routes: routes,
+    forgotPasswordEnabled: routes.some(r => 
+      r.path.includes('/api/users/forgot-password') && r.method === 'POST'
+    ),
+    userRoutes: routes.filter(r => r.path.includes('/api/users'))
+  });
+});
+
+// API status endpoint
+app.get('/api/email-test', (req, res) => {
+  res.json({ 
+    status: 'Email configuration loaded',
+    emailConfig: {
+      host: process.env.EMAIL_HOST || 'Not set',
+      port: process.env.EMAIL_PORT || 'Not set',
+      user: process.env.EMAIL_USER ? 'Configured' : 'Not set',
+      password: process.env.EMAIL_PASSWORD ? 'Configured' : 'Not set'
+    }
+  });
+});
 
 // API status endpoint
 app.get('/api/status', (req, res) => {
   res.json({ 
-    status: 'API is running'
+    status: 'API is running',
+    emailConfigured: !!process.env.EMAIL_PASSWORD
   });
 });
 

@@ -1,17 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import './RecurringTasksPage.css';
 import TimePicker from '../components/TimePicker';
-import RecurringTaskInstances from '../components/RecurringTaskInstances'; // New component
+import RecurringTaskInstances from '../components/RecurringTaskInstances'; 
 import SchedulerOptions from '../components/SchedulerOptions';
+import TaskForm from '../TaskForm'; 
 import axios from 'axios';
 import { API_BASE_URL } from '../config';
-import addIcon from '/add.png'; // Make sure this icon exists or import a suitable one
+import addIcon from '/add.png'; 
 
 function RecurringTasksPage() {
   const [taskData, setTaskData] = useState({
     title: '',
     priority: '',
-    recurrenceType: 'daily', // hourly, daily, weekly, monthly
+    recurrenceType: 'daily', 
     startDate: '',
     endDate: '',
     startTime: '',
@@ -19,7 +20,7 @@ function RecurringTasksPage() {
     hourlyInterval: 1,
     dailyDays: [],
     weeklyDays: [],
-    monthlyType: 'dayOfMonth', // dayOfMonth or dayOfWeek
+    monthlyType: 'dayOfMonth', 
     monthlyDate: 1,
     monthlyDay: 'Monday',
     monthlyWeek: 'first',
@@ -32,7 +33,6 @@ function RecurringTasksPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [loadError, setLoadError] = useState('');
   
-  // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showOptionsModal, setShowOptionsModal] = useState(false);
   const [showRecurringForm, setShowRecurringForm] = useState(false);
@@ -42,7 +42,6 @@ function RecurringTasksPage() {
 
   const modalContentRef = useRef(null);
 
-  // Fetch existing recurring tasks when the component mounts
   useEffect(() => {
     fetchRecurringTasks();
   }, []);
@@ -67,12 +66,9 @@ function RecurringTasksPage() {
     }
   };
 
-  // Reset the scroll signal after component mounts
   useEffect(() => {
-    // Set initial scroll to true on component mount
     setShouldScrollToToday(true);
     
-    // Reset the scroll signal after a timeout
     const timer = setTimeout(() => {
       setShouldScrollToToday(false);
     }, 200);
@@ -80,29 +76,35 @@ function RecurringTasksPage() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Handle outside clicks for modal
   useEffect(() => {
     function handleClickOutside(event) {
       if (isModalOpen && modalContentRef.current && 
           !modalContentRef.current.contains(event.target)) {
-        // Only close if we're clicking on the backdrop (not inside the modal)
-        // Check if the click is on the modal backdrop itself
         if (event.target.classList.contains('scheduler-modal')) {
           closeModal();
         }
       }
     }
     
-    // Add event listener
     document.addEventListener('mousedown', handleClickOutside);
     
-    // Cleanup
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, [isModalOpen]);
 
-  // Handle deletion of recurring tasks
+  // Add this new useEffect to check if we need to auto-open the recurring form
+  useEffect(() => {
+    const shouldOpenForm = localStorage.getItem('openRecurringForm');
+    if (shouldOpenForm === 'true') {
+      setIsModalOpen(true);
+      setShowOptionsModal(false);
+      setShowRecurringForm(true);
+      // Clear the flag so it doesn't reopen on page refresh
+      localStorage.removeItem('openRecurringForm');
+    }
+  }, []);
+
   const deleteRecurringTask = async (taskId) => {
     if (!window.confirm('Are you sure you want to delete this recurring task?')) {
       return;
@@ -153,13 +155,11 @@ function RecurringTasksPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Basic form validation
     if (!taskData.title || !taskData.priority || !taskData.startDate) {
       setFormError('Please fill all required fields');
       return;
     }
 
-    // Additional validation based on recurrence type
     if (taskData.recurrenceType === 'hourly' && (!taskData.startTime || !taskData.endTime)) {
       setFormError('Please specify start time and end time for hourly recurrence');
       return;
@@ -184,7 +184,6 @@ function RecurringTasksPage() {
         throw new Error('User not authenticated');
       }
       
-      // Send the data to the backend API
       const response = await axios.post(
         `${API_BASE_URL}/api/recurring-tasks`,
         { ...taskData, userId: user._id },
@@ -193,10 +192,8 @@ function RecurringTasksPage() {
 
       console.log('Recurring task created:', response.data);
       
-      // Add the new task to the list of recurring tasks
       setRecurringTasks([...recurringTasks, response.data]);
       
-      // Reset form and close modal
       resetForm();
       closeModal();
       
@@ -218,7 +215,6 @@ function RecurringTasksPage() {
     }
   };
 
-  // Reset form and modal states
   const resetForm = () => {
     setTaskData({
       title: '',
@@ -240,7 +236,6 @@ function RecurringTasksPage() {
     setShowPreview(false);
   };
 
-  // Modal control functions
   const openModal = () => {
     setIsModalOpen(true);
     setShowOptionsModal(true);
@@ -260,10 +255,7 @@ function RecurringTasksPage() {
     if (option === 'recurring') {
       setShowRecurringForm(true);
     } else if (option === 'regular') {
-      // Here we would redirect to the regular task form or show it
       setShowRegularForm(true);
-      // We could also redirect to the tasks page with:
-      // window.location.href = '/tasks';
     }
   };
 
@@ -308,7 +300,6 @@ function RecurringTasksPage() {
     return `"${taskData.title}" will occur ${recurrenceText} starting from ${taskData.startDate}${taskData.endDate ? ` until ${taskData.endDate}` : ''}`;
   };
 
-  // Add function to handle closing the error message
   const handleCloseError = () => {
     setLoadError('');
   };
@@ -341,14 +332,15 @@ function RecurringTasksPage() {
         />
       )}
 
-      {/* Floating Action Button */}
       <button className="scheduler-fab" onClick={openModal}>
         <img src={addIcon} alt="Add task" />
       </button>
 
-      {/* Modal system */}
       <div className={`scheduler-modal ${isModalOpen ? 'show' : ''}`}>
-        <div className="scheduler-modal-content" ref={modalContentRef}>
+        <div 
+          className={`scheduler-modal-content ${showRegularForm ? 'show-regular-form' : ''}`} 
+          ref={modalContentRef}
+        >
           {showOptionsModal && (
             <SchedulerOptions onSelect={handleOptionSelect} onClose={closeModal} />
           )}
@@ -641,19 +633,27 @@ function RecurringTasksPage() {
           )}
           
           {showRegularForm && (
-            <div className="regular-task-redirect">
-              <button className="close-modal-btn" onClick={closeModal}>×</button>
-              <h2>Create Regular Task</h2>
-              <p>You'll be redirected to the regular task creation form.</p>
-              <div className="redirect-actions">
-                <button 
-                  className="redirect-btn" 
-                  onClick={() => {window.location.href = '/tasks';}}
-                >
-                  Go to Tasks
-                </button>
-                <button className="cancel-btn" onClick={closeModal}>Cancel</button>
-              </div>
+            <div className="regular-task-form-container">
+              <TaskForm 
+                addTask={async (task) => {
+                  try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    if (!user) {
+                      throw new Error('User not authenticated');
+                    }
+                    
+                    const taskWithUser = { ...task, userId: user._id };
+                    
+                    await axios.post(`${API_BASE_URL}/api/tasks`, taskWithUser);
+                    
+                    closeModal();
+                  } catch (error) {
+                    console.error('Error creating task:', error);
+                    alert('Failed to create task. Please try again.');
+                  }
+                }}
+                closeModal={closeModal}
+              />
             </div>
           )}
         </div>

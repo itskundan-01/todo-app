@@ -30,9 +30,24 @@ header p {
 .recurring-task-form-container {
   background-color: white;
   border-radius: 12px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
   padding: 30px;
   margin-bottom: 40px;
+  position: relative;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.recurring-task-form {
+  width: 100%;
+}
+
+.regular-task-form-container {
+  background-color: transparent !important; /* Explicitly set transparent background */
+  border-radius: 12px;
+  padding: 30px;
+  margin-bottom: 40px;
+  position: relative;
 }
 
 .form-section {
@@ -516,6 +531,16 @@ header p {
   animation: modalSlideIn 0.3s ease;
   position: relative;
   padding: 20px;
+}
+
+/* Special styling for when regular task form is shown */
+.scheduler-modal-content.show-regular-form {
+  background-color: transparent !important;
+  box-shadow: none !important;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 0;
 }
 
 @keyframes modalSlideIn {

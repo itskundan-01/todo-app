@@ -10,6 +10,12 @@ import Notification from './components/Notification';
 import avatar from './account.png';
 import { API_BASE_URL, OneSignalAppId } from './config';
 import OneSignal from 'react-onesignal';
+import AdminDashboard from './pages/AdminDashboard';
+import UserManagement from './pages/UserManagement';
+import AdminSettings from './pages/AdminSettings';
+import AdminLayout from './components/AdminLayout';
+import AdminRegisterPage from './pages/AdminRegisterPage';
+import RecurringTaskForm from './components/RecurringTaskForm';
 
 function App() {
   const [tasks, setTasks] = useState([]);
@@ -21,7 +27,8 @@ function App() {
   const [isLogin, setIsLogin] = useState(true);
   const [notification, setNotification] = useState(null);
   const [showProfile, setShowProfile] = useState(false);
-  const [currentView, setCurrentView] = useState('tasks'); // 'home', 'tasks', or 'recurring'
+  const [currentView, setCurrentView] = useState('tasks'); // 'home', 'tasks', 'recurring', or 'admin'
+  const [adminSection, setAdminSection] = useState('dashboard');
   const todayRef = useRef(null);
   const viewChanged = useRef(false);
   const [hideNavbar, setHideNavbar] = useState(false);
@@ -31,6 +38,10 @@ function App() {
   const taskOptionsRef = useRef(null);
   const profileRef = useRef(null);
   const authFormRef = useRef(null);
+  const [forgotPasswordMode, setForgotPasswordMode] = useState(false);
+  const [resetSuccess, setResetSuccess] = useState(false);
+  const [resetToken, setResetToken] = useState('');
+  const [showRecurringTaskModal, setShowRecurringTaskModal] = useState(false);
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -133,10 +144,13 @@ function App() {
         setShowTaskOptions(false);
       }
       
-      // Regular task form modal
+      // Regular task form modal - only close if clicking directly on the modal backdrop
       if (isModalOpen && taskFormRef.current && 
           !taskFormRef.current.contains(event.target)) {
-        setIsModalOpen(false);
+        // Only close if clicking on the modal background element itself
+        if (event.target.classList.contains('modal')) {
+          setIsModalOpen(false);
+        }
       }
       
       // Profile dropdown
@@ -163,8 +177,67 @@ function App() {
     };
   }, [showTaskOptions, isModalOpen, showProfile, showAuth]);
 
+  useEffect(() => {
+    // Check for requested view in localStorage (for page refreshes)
+    const savedView = localStorage.getItem('requestedView');
+    if (savedView) {
+      setCurrentView(savedView);
+      localStorage.removeItem('requestedView');
+    }
+    
+    // Check for admin section in localStorage
+    const savedAdminSection = localStorage.getItem('adminSection');
+    if (savedAdminSection) {
+      setAdminSection(savedAdminSection);
+    }
+    
+    // Listen for admin navigation events
+    const handleAdminNavigate = (e) => {
+      setAdminSection(e.detail.section);
+    };
+    
+    window.addEventListener('adminNavigate', handleAdminNavigate);
+    
+    return () => {
+      window.removeEventListener('adminNavigate', handleAdminNavigate);
+    };
+  }, []);
+
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const token = url.pathname.match(/\/reset-password\/([^\/]+)/);
+    if (token && token[1]) {
+      setResetToken(token[1]);
+      setForgotPasswordMode(true);
+      setShowAuth(true);
+      // Remove token from URL to prevent security issues
+      window.history.pushState({}, '', '/');
+    }
+  }, []);
+
   const showNotification = (message, type) => {
     setNotification({ message, type });
+  };
+
+  const handleForgotPassword = async (email) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/users/forgot-password`, { email });
+      setResetSuccess(true);
+      showNotification('Password reset instructions have been sent to your email.', 'success');
+    } catch (error) {
+      showNotification(error.response?.data?.message || 'Failed to process password reset request.', 'error');
+    }
+  };
+
+  const handleResetPassword = async (token, newPassword) => {
+    try {
+      await axios.post(`${API_BASE_URL}/api/users/reset-password`, { token, password: newPassword });
+      setResetSuccess(true);
+      setForgotPasswordMode(false);
+      showNotification('Password has been reset successfully. Please login.', 'success');
+    } catch (error) {
+      showNotification(error.response?.data?.message || 'Failed to reset password.', 'error');
+    }
   };
 
   const addTask = async (newTask) => {
@@ -303,6 +376,15 @@ function App() {
     viewChanged.current = true;
   };
 
+  const navigateToAdmin = () => {
+    setCurrentView('admin');
+    setAdminSection('dashboard');
+    viewChanged.current = true;
+    
+    // Update URL without page reload
+    window.history.pushState({}, '', '/admin');
+  };
+
   const handleShowAuth = () => {
     setShowAuth(true);
   };
@@ -315,9 +397,15 @@ function App() {
     setShowTaskOptions(false);
     
     if (option === 'regular') {
-      setIsModalOpen(true); // Show the regular task form
+      // Show the regular task form directly - add a slight delay to ensure
+      // the task options modal has fully closed first
+      setTimeout(() => {
+        setIsModalOpen(true);
+      }, 50);
     } else if (option === 'recurring') {
-      navigateToRecurringTasks(); // Navigate to recurring tasks page
+      // Show the recurring task modal directly
+      setCurrentView('recurring');
+      localStorage.setItem('openRecurringForm', 'true');
     }
   };
 
@@ -365,6 +453,7 @@ function App() {
         {currentView === 'home' ? 'To-Do List App | Task Management & Productivity Tool' :
          currentView === 'tasks' ? 'My Tasks | Organize and Prioritize Your To-Do List' :
          currentView === 'recurring' ? 'Smart Scheduler | Set Up Recurring Tasks and Routines' :
+         currentView === 'admin' ? 'Admin Dashboard | System Management' :
          'To-Do List Application'}
       </h1>
       
@@ -402,6 +491,14 @@ function App() {
                 >
                   Smart Scheduler
                 </button>
+                {user.isAdmin && (
+                  <button
+                    className={`nav-button ${currentView === 'admin' ? 'active' : ''}`}
+                    onClick={navigateToAdmin}
+                  >
+                    Admin
+                  </button>
+                )}
               </div>
               {currentView === 'tasks' && (
                 <div className="navbar-search">
@@ -431,6 +528,19 @@ function App() {
               <HomePage navigateToTasks={navigateToTasks} navigateToRecurringTasks={navigateToRecurringTasks} />
             ) : currentView === 'recurring' ? (
               <RecurringTasksPage />
+            ) : currentView === 'admin' ? (
+              <AdminLayout>
+                {/* Use adminSection state instead of window.location.pathname */}
+                {adminSection === 'users' ? (
+                  <UserManagement />
+                ) : adminSection === 'settings' ? (
+                  <AdminSettings />
+                ) : adminSection === 'register' ? (
+                  <AdminRegisterPage />
+                ) : (
+                  <AdminDashboard />
+                )}
+              </AdminLayout>
             ) : (
               <>
                 {filteredTasks.length === 0 ? (
@@ -548,7 +658,7 @@ function App() {
               </>
             ) : (
               <div className="auth-container" ref={authFormRef}>
-                {isLogin ? (
+                {isLogin && !forgotPasswordMode ? (
                   <div className="auth-form">
                     <h2 className='auth-header'>Login</h2>
                     <form onSubmit={(e) => {
@@ -561,7 +671,48 @@ function App() {
                       <input type="password" name="password" placeholder="Password" required />
                       <button type="submit">Login</button>
                     </form>
-                    <p>Don't have an account? <span className="toggle-auth" onClick={() => setIsLogin(false)}>Sign Up</span></p>
+                    <div className="auth-links">
+                      <p>Don't have an account? <span className="toggle-auth" onClick={() => {setIsLogin(false); setForgotPasswordMode(false);}}>Sign Up</span></p>
+                      <p><span className="toggle-auth" onClick={() => setForgotPasswordMode(true)}>Forgot Password?</span></p>
+                    </div>
+                  </div>
+                ) : forgotPasswordMode ? (
+                  <div className="auth-form">
+                    <h2 className='auth-header'>{resetToken ? 'Reset Password' : 'Forgot Password'}</h2>
+                    {resetSuccess && !resetToken ? (
+                      <div className="success-message">
+                        <p>Password reset email sent! Check your inbox for instructions.</p>
+                        <button onClick={() => {setForgotPasswordMode(false); setResetSuccess(false);}}>Return to Login</button>
+                      </div>
+                    ) : resetToken ? (
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const password = e.target.password.value;
+                        const confirmPassword = e.target.confirmPassword.value;
+                        
+                        if (password !== confirmPassword) {
+                          showNotification('Passwords do not match!', 'error');
+                          return;
+                        }
+                        
+                        handleResetPassword(resetToken, password);
+                      }}>
+                        <input type="password" name="password" placeholder="New Password" required minLength="6" />
+                        <input type="password" name="confirmPassword" placeholder="Confirm Password" required />
+                        <button type="submit">Reset Password</button>
+                      </form>
+                    ) : (
+                      <form onSubmit={(e) => {
+                        e.preventDefault();
+                        const email = e.target.email.value;
+                        handleForgotPassword(email);
+                      }}>
+                        <p>Enter your email address and we'll send you instructions to reset your password.</p>
+                        <input type="email" name="email" placeholder="Email" required />
+                        <button type="submit">Send Reset Link</button>
+                      </form>
+                    )}
+                    <p><span className="toggle-auth" onClick={() => {setForgotPasswordMode(false); setResetToken('');}}>Back to Login</span></p>
                   </div>
                 ) : (
                   <div className="auth-form">
@@ -571,11 +722,19 @@ function App() {
                       const name = e.target.name.value;
                       const email = e.target.email.value;
                       const password = e.target.password.value;
+                      
+                      // Email validation
+                      const emailRegex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+                      if (!emailRegex.test(String(email).toLowerCase())) {
+                        showNotification('Please enter a valid email address!', 'error');
+                        return;
+                      }
+                      
                       handleRegister(name, email, password);
                     }}>
                       <input type="text" name="name" placeholder="Full Name" required />
                       <input type="email" name="email" placeholder="Email" required />
-                      <input type="password" name="password" placeholder="Password" required />
+                      <input type="password" name="password" placeholder="Password" minLength="6" required />
                       <button type="submit">Register</button>
                     </form>
                     <p>Already have an account? <span className="toggle-auth" onClick={() => setIsLogin(true)}>Sign In</span></p>

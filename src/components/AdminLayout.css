@@ -1,0 +1,134 @@
+/* Admin Layout - Main container */
+.admin-layout {
+  display: flex;
+  height: calc(100vh - 80px);
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  margin: 0 auto;
+  max-width: 1400px;
+}
+
+/* Admin Sidebar */
+.admin-sidebar {
+  width: 280px;
+  background: linear-gradient(135deg, #1a2a3a 0%, #2c3e50 100%);
+  color: white;
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-radius: 12px 0 0 12px;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.admin-sidebar-header {
+  padding: 25px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 10px;
+}
+
+.admin-sidebar-header h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #fff;
+  text-align: center;
+}
+
+/* Admin Navigation */
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  padding: 15px 0;
+}
+
+.admin-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 14px 20px;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.8);
+  text-align: left;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  margin: 4px 10px;
+  border-radius: 8px;
+}
+
+.admin-nav-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  transform: translateX(3px);
+}
+
+.admin-nav-item.active {
+  background-color: rgba(52, 152, 219, 0.2);
+  color: white;
+  font-weight: 500;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.admin-nav-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 4px;
+  background-color: #3498db;
+  border-radius: 0 2px 2px 0;
+}
+
+.admin-nav-icon {
+  margin-right: 12px;
+  font-size: 20px;
+  width: 24px;
+  text-align: center;
+}
+
+.admin-nav-item.exit {
+  margin-top: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  color: #ff6b6b;
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+.admin-nav-item.exit:hover {
+  background-color: rgba(255, 107, 107, 0.1);
+}
+
+/* Admin Content */
+.admin-content {
+  flex: 1;
+  padding: 30px;
+  overflow-y: auto;
+  background-color: white;
+  border-radius: 0 12px 12px 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .admin-layout {
+    flex-direction: column;
+    height: auto;
+  }
+  
+  .admin-sidebar {
+    width: 100%;
+    border-radius: 12px 12px 0 0;
+  }
+  
+  .admin-content {
+    border-radius: 0 0 12px 12px;
+    padding: 20px;
+  }
+  
+  .admin-nav-item {
+    padding: 12px 15px;
+  }
+}

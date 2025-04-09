@@ -4,7 +4,7 @@
 # Environment variables
 /.env
 /backend/.env
-
+.env
 # Logs
 logs
 *.log
