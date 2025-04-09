@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Todo App - Page Not Found</title>
+  <script>
+    // Preserve the URL path and redirect to index.html
+    const pathSegments = window.location.pathname.split('/');
+    if (pathSegments.length >= 3 && pathSegments[1] === 'reset-password') {
+      // Store the reset token in session storage
+      sessionStorage.setItem('passwordResetToken', pathSegments[2]);
+      // Redirect to the root
+      window.location.href = '/';
+    } else {
+      // For other 404 cases, just redirect to homepage
+      window.location.href = '/';
+    }
+  </script>
+</head>
+<body>
+  <p>Redirecting...</p>
+</body>
+</html>

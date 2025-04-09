@@ -1,0 +1,8 @@
+{
+  "routes": [
+    { "src": "/reset-password/.*", "dest": "/index.html" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}
