@@ -430,8 +430,13 @@
 .task-form-modal {
     width: 90%; /* Match the standard modal width */
     max-width: 550px; /* Increased from 500px for better fit */
-    background: transparent;
+    background-color: #fff;
     box-shadow: none;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+    padding: 15px; /* Add some padding */
 }
 
 /* Fix task form when inside the modal */
@@ -440,6 +445,42 @@
     width: 100%; /* Ensure form takes full width of modal */
     box-sizing: border-box;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+/* Recurring Task Form Styling */
+.recurring-task-form-modal {
+    width: 90%;
+    max-width: 650px; /* Slightly wider for more complex form */
+    background-color: #fff;
+    border-radius: 12px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.recurring-task-form {
+    width: 100%;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 20px;
+    border-radius: 8px;
+    background-color: #ffffff;
+}
+
+.recurring-task-form .form-section {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+}
+
+/* Form container inside modal needs specific styling */
+.scheduler-modal-content .recurring-task-form-container {
+    width: 100%;
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    background-color: transparent;
 }
 
 @keyframes modalFadeIn {
