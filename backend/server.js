@@ -8,6 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const recurringTaskRoutes = require('./routes/recurringTaskRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
 // Debugging: Verify if environment variables are loaded
 console.log('MONGO_URI:', process.env.MONGO_URI ? 'Found' : 'Not Found');
@@ -15,6 +16,7 @@ console.log('PUBLIC_URL:', process.env.PUBLIC_URL);
 console.log('EMAIL_HOST:', process.env.EMAIL_HOST ? 'Found' : 'Not Found');
 console.log('EMAIL_USER:', process.env.EMAIL_USER ? 'Found' : 'Not Found');
 console.log('EMAIL_PASSWORD:', process.env.EMAIL_PASSWORD ? 'Found' : 'Not Found');
+console.log('GEMINI_API_KEY:', process.env.GEMINI_API_KEY ? 'Found' : 'Not Found');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -52,6 +54,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 app.use('/api/recurring-tasks', recurringTaskRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Debugging route to list all registered routes
 app.get('/api/routes', (req, res) => {
@@ -159,6 +162,21 @@ app.get('/api/status', (req, res) => {
   res.json({ 
     status: 'API is running',
     emailConfigured: !!process.env.EMAIL_PASSWORD
+  });
+});
+
+// API status endpoint for environment variables
+app.get('/api/env-test', (req, res) => {
+  res.json({ 
+    status: 'Environment variables check',
+    envVars: {
+      mongoUri: !!process.env.MONGO_URI,
+      publicUrl: process.env.PUBLIC_URL,
+      emailHost: !!process.env.EMAIL_HOST,
+      emailUser: !!process.env.EMAIL_USER,
+      emailPass: !!process.env.EMAIL_PASSWORD,
+      geminiApiKey: !!process.env.GEMINI_API_KEY
+    }
   });
 });
 

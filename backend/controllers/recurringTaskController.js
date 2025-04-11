@@ -21,48 +21,96 @@ const getRecurringTasks = async (req, res) => {
 
 const addRecurringTask = async (req, res) => {
   try {
-    const {
-      userId,
-      title,
-      priority,
-      recurrenceType,
-      startDate,
-      endDate,
-      startTime,
-      endTime,
-      hourlyInterval,
-      dailyDays,
-      weeklyDays,
-      monthlyType,
-      monthlyDate,
-      monthlyDay,
-      monthlyWeek
+    const { 
+      title, priority, recurrenceType, startDate, endDate, time, 
+      hourlyInterval, startTime, endTime, 
+      dailyDays, weeklyDays, monthlyType, monthlyDate, monthlyWeek, monthlyDay,
+      userId, recurrenceDetails
     } = req.body;
 
-    // Create the recurring task pattern record
-    const recurringTask = new RecurringTask({
-      userId,
-      title,
-      priority,
-      recurrenceType,
-      startDate,
-      endDate,
-      startTime,
+    // Always set priority to 'low' regardless of what was sent
+    const taskData = {
+      title, 
+      priority: 'low', // Force priority to low
+      recurrenceType, 
+      startDate, 
+      endDate, 
+      time,
+      hourlyInterval, 
+      startTime, 
       endTime,
-      hourlyInterval,
-      dailyDays,
-      weeklyDays,
-      monthlyType,
-      monthlyDate,
+      monthlyType, 
+      monthlyDate, 
+      monthlyWeek, 
       monthlyDay,
-      monthlyWeek
-    });
+      userId
+    };
 
+    console.log('Creating recurring task with data:', JSON.stringify({
+      title, recurrenceType, 
+      weeklyDays: weeklyDays || (recurrenceDetails?.days),
+      recurrenceDetails
+    }));
+
+    // Ensure default arrays for different recurrence types if they're missing
+    // Handle recurrence details passed from AI or standardize format
+    if (recurrenceDetails) {
+      // Extract recurrence details from AI response
+      if (recurrenceType === 'daily' && recurrenceDetails.days) {
+        taskData.dailyDays = Array.isArray(recurrenceDetails.days) ? recurrenceDetails.days : [recurrenceDetails.days];
+      } else if (recurrenceType === 'weekly' && recurrenceDetails.days) {
+        taskData.weeklyDays = Array.isArray(recurrenceDetails.days) ? recurrenceDetails.days : [recurrenceDetails.days];
+      }
+    } else {
+      // Use the directly provided arrays if any
+      if (dailyDays) taskData.dailyDays = Array.isArray(dailyDays) ? dailyDays : [dailyDays];
+      if (weeklyDays) taskData.weeklyDays = Array.isArray(weeklyDays) ? weeklyDays : [weeklyDays];
+    }
+    
+    // Set defaults if still missing
+    if (recurrenceType === 'daily' && (!taskData.dailyDays || !Array.isArray(taskData.dailyDays) || taskData.dailyDays.length === 0)) {
+      taskData.dailyDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    }
+    
+    if (recurrenceType === 'weekly' && (!taskData.weeklyDays || !Array.isArray(taskData.weeklyDays) || taskData.weeklyDays.length === 0)) {
+      // Extract days from title or description if possible
+      const daysInWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const titleLower = title.toLowerCase();
+      
+      const extractDaysFromText = (text) => {
+        return daysInWeek.filter(day => 
+          text.includes(day.toLowerCase()) ||
+          text.includes(day.toLowerCase().substring(0, 3)) // Check for abbreviations like "mon", "tue"
+        );
+      };
+      
+      taskData.weeklyDays = extractDaysFromText(titleLower);
+      
+      // Also check description if available
+      if (req.body.description && taskData.weeklyDays.length === 0) {
+        taskData.weeklyDays = extractDaysFromText(req.body.description.toLowerCase());
+      }
+      
+      // If still no days found, default to today
+      if (!taskData.weeklyDays.length) {
+        const today = new Date();
+        const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        taskData.weeklyDays = [dayNames[today.getDay()]];
+      }
+    }
+    
+    console.log('Final weeklyDays:', taskData.weeklyDays);
+
+    const recurringTask = new RecurringTask(taskData);
     const createdRecurringTask = await recurringTask.save();
     
     // Generate individual task instances
     const start = new Date(startDate);
     const end = endDate ? new Date(endDate) : getDefaultEndDate(start);
+    
+    // Log date range for debugging
+    console.log(`Generating task instances from ${start.toISOString()} to ${end.toISOString()}`);
+    console.log(`Days specified for ${recurrenceType}: ${recurrenceType === 'weekly' ? taskData.weeklyDays : (taskData.dailyDays || 'none')}`);
     
     let dates = [];
     
@@ -71,15 +119,17 @@ const addRecurringTask = async (req, res) => {
         dates = generateHourlyDates(start, end, startTime, endTime, hourlyInterval);
         break;
       case 'daily':
-        dates = generateDailyDates(start, end, dailyDays);
+        dates = generateDailyDates(start, end, taskData.dailyDays);
         break;
       case 'weekly':
-        dates = generateWeeklyDates(start, end, weeklyDays);
+        dates = generateWeeklyDates(start, end, taskData.weeklyDays);
         break;
       case 'monthly':
         dates = generateMonthlyDates(start, end, monthlyType, monthlyDate, monthlyDay, monthlyWeek);
         break;
     }
+    
+    console.log(`Generated ${dates.length} date instances for the recurring task`);
     
     // Create individual task instances
     const taskPromises = dates.map(date => {
@@ -88,7 +138,7 @@ const addRecurringTask = async (req, res) => {
         text: title,
         priority,
         date: formatDate(date),
-        time: startTime || '12:00 PM',
+        time: time || startTime || '10:00 PM',
         completed: false,
         recurringTaskId: createdRecurringTask._id, // Link to the recurring pattern
         isRecurringInstance: true,
@@ -154,6 +204,7 @@ const updateRecurringTask = async (req, res) => {
       const end = task.endDate ? new Date(task.endDate) : getDefaultEndDate(start);
       
       let dates = [];
+      
       switch (task.recurrenceType) {
         case 'hourly':
           dates = generateHourlyDates(start, end, task.startTime, task.endTime, task.hourlyInterval);

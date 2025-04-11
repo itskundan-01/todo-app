@@ -70,41 +70,49 @@ const welcomeEmail = (name, email) => {
   return {
     from: `"To-Do App" <${process.env.EMAIL_USER}>`,
     to: email,
-    subject: 'Welcome to To-Do App!',
+    subject: 'Welcome to To-Do App! Get Started Now',
     html: `
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <div style="background-color: #6f19d2; color: white; padding: 15px; border-radius: 8px;">
-            <h2 style="margin: 0; font-size: 24px;">Welcome to To-Do App!</h2>
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f9f9fa;">
+        <!-- Header with logo area -->
+        <div style="background-color: #6f19d2; text-align: center; padding: 30px 20px; border-radius: 8px 8px 0 0;">
+          <h1 style="margin: 0; font-size: 28px; color: white; font-weight: 700;">Welcome to To-Do App!</h1>
+          <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin-top: 8px; margin-bottom: 0;">Your journey to better productivity starts now</p>
+        </div>
+        
+        <!-- Main content area -->
+        <div style="background-color: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+          <p style="font-size: 16px; color: #333; margin-top: 0; line-height: 1.5;">Hey ${name},</p>
+          
+          <p style="font-size: 16px; color: #333; line-height: 1.6;">We're thrilled to welcome you to <strong>To-Do App</strong>! You've taken the first step toward mastering your time and boosting your productivity.</p>
+          
+          <div style="background-color: #f8f5ff; border-left: 4px solid #6f19d2; padding: 20px; margin: 25px 0; border-radius: 4px;">
+            <h2 style="margin-top: 0; color: #333; font-size: 18px;">✨ What makes To-Do App special?</h2>
+            <ul style="font-size: 16px; color: #333; margin: 15px 0 0; padding-left: 20px; line-height: 1.7;">
+              <li style="margin-bottom: 10px;"><strong>Smart Task Management</strong> - Create, organize and prioritize tasks with intuitive tools</li>
+              <li style="margin-bottom: 10px;"><strong>Intelligent Scheduling</strong> - Set up recurring patterns for classes, meetings, and routines</li>
+              <li style="margin-bottom: 10px;"><strong>Timely Notifications</strong> - Stay on track with helpful reminders before deadlines</li>
+              <li style="margin-bottom: 0px;"><strong>Visual Progress Tracking</strong> - See your productivity journey at a glance</li>
+            </ul>
           </div>
-        </div>
-        
-        <p style="font-size: 16px; color: #333; margin-top: 25px;">Hello ${name},</p>
-        
-        <p style="font-size: 16px; color: #333; line-height: 1.5;">Thank you for joining our <strong>To-Do App</strong>! We're excited to have you on board.</p>
-        
-        <div style="background-color: #f9f9f9; border-left: 4px solid #6f19d2; padding: 15px; margin: 20px 0; border-radius: 4px;">
-          <p style="font-size: 16px; color: #333; margin: 0;">With our app, you can:</p>
-          <ul style="font-size: 16px; color: #333; margin-top: 10px; padding-left: 20px;">
-            <li style="margin-bottom: 8px;">Create and organize tasks with priorities</li>
-            <li style="margin-bottom: 8px;">Set up recurring tasks with smart scheduling</li>
-            <li style="margin-bottom: 8px;">Receive notifications for upcoming deadlines</li>
-            <li style="margin-bottom: 8px;">Track your progress and boost productivity</li>
-          </ul>
-        </div>
-        
-        <p style="font-size: 16px; color: #333; line-height: 1.5;">Get started by adding your first task today!</p>
-        
-        <div style="text-align: center; margin: 35px 0;">
-          <a href="${process.env.PUBLIC_URL || 'http://localhost:5173'}" 
-             style="background-color: #6f19d2; color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            Start Using To-Do App
-          </a>
-        </div>
-        
-        <div style="margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-          <p style="font-size: 12px; color: #999;">This is an automated message from To-Do App. Please do not reply.</p>
-          <p style="font-size: 12px; color: #999;">&copy; ${currentYear} To-Do App. All rights reserved.</p>
+          
+          <h3 style="color: #333; font-size: 18px; margin: 25px 0 15px;">🚀 Ready to get started?</h3>
+          <p style="font-size: 16px; color: #333; margin-bottom: 25px; line-height: 1.6;">Add your first task now and experience how To-Do App can transform your productivity.</p>
+          
+          <div style="text-align: center; margin: 35px 0 25px;">
+            <a href="${process.env.PUBLIC_URL}"
+               style="background-color: #6f19d2; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 3px 8px rgba(111,25,210,0.3); transition: all 0.2s ease;">
+              Get Started Now
+            </a>
+          </div>
+          
+          <p style="font-size: 16px; color: #555; margin: 30px 0 20px; line-height: 1.6; text-align: center;">
+            Need help? <a href="mailto:support@todoapp.com" style="color: #6f19d2; text-decoration: none; font-weight: 500;">Contact our support team</a>
+          </p>
+          
+          <div style="margin-top: 40px; text-align: center; border-top: 1px solid #eaeaea; padding-top: 25px;">
+            <p style="font-size: 14px; color: #999; margin: 0 0 5px;">You're receiving this email because you signed up for To-Do App. Please do not reply.</p>
+            <p style="font-size: 13px; color: #999; margin: 0;">© ${currentYear} To-Do App. All rights reserved.</p>
+          </div>
         </div>
       </div>
     `
@@ -113,7 +121,7 @@ const welcomeEmail = (name, email) => {
 
 // Password reset email template
 const passwordResetEmail = (name, email, resetToken) => {
-  const resetLink = `${process.env.PUBLIC_URL || 'http://localhost:5173'}/reset-password/${resetToken}`;
+  const resetLink = `${process.env.PUBLIC_URL}/reset-password/${resetToken}`;
   const currentYear = new Date().getFullYear();
   
   return {
@@ -121,37 +129,44 @@ const passwordResetEmail = (name, email, resetToken) => {
     to: email,
     subject: 'Reset Your To-Do App Password',
     html: `
-      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 30px; border: 1px solid #e0e0e0; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.05);">
-        <div style="text-align: center; margin-bottom: 20px;">
-          <div style="background-color: #6f19d2; color: white; padding: 15px; border-radius: 8px;">
-            <h2 style="margin: 0; font-size: 24px;">Password Reset</h2>
+      <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 0; background-color: #f9f9fa;">
+        <!-- Header with logo area -->
+        <div style="background-color: #6f19d2; text-align: center; padding: 30px 20px; border-radius: 8px 8px 0 0;">
+          <h1 style="margin: 0; font-size: 28px; color: white; font-weight: 700;">Reset Your Password</h1>
+          <p style="color: rgba(255,255,255,0.9); font-size: 16px; margin-top: 8px; margin-bottom: 0;">Secure account access for To-Do App</p>
+        </div>
+        
+        <!-- Main content area -->
+        <div style="background-color: white; padding: 30px; border-radius: 0 0 8px 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+          <p style="font-size: 16px; color: #333; margin-top: 0; line-height: 1.5;">Hello ${name},</p>
+          
+          <p style="font-size: 16px; color: #333; line-height: 1.6;">We received a request to reset the password for your <strong>To-Do App</strong> account. To complete the process, please click the button below:</p>
+          
+          <div style="background-color: #fff9f1; border-left: 4px solid #ff9800; padding: 20px; margin: 25px 0; border-radius: 4px;">
+            <h2 style="margin: 0; color: #333; font-size: 18px;">🔒 Security Notice</h2>
+            <p style="font-size: 15px; color: #555; margin: 10px 0 0;">This password reset link will expire in <strong>1 hour</strong> for your protection. If you didn't request this change, please ignore this email or contact support.</p>
           </div>
-        </div>
-        
-        <p style="font-size: 16px; color: #333; margin-top: 25px;">Hello ${name},</p>
-        
-        <p style="font-size: 16px; color: #333; line-height: 1.5;">We received a request to reset the password for your <strong>To-Do App</strong> account. If you didn't make this request, please ignore this email or contact support.</p>
-        
-        <div style="background-color: #f9f9f9; border-left: 4px solid #6f19d2; padding: 15px; margin: 20px 0; border-radius: 4px;">
-          <p style="font-size: 16px; color: #333; margin: 0;">To reset your password, click on the secure button below:</p>
-        </div>
-        
-        <div style="text-align: center; margin: 35px 0;">
-          <a href="${resetLink}" 
-             style="background-color: #6f19d2; color: white; padding: 14px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block; font-size: 16px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">
-            Reset My Password
-          </a>
-        </div>
-        
-        <div style="margin-top: 25px; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-          <p style="font-size: 14px; color: #666; line-height: 1.5;"><strong>Security Notice:</strong> This link will expire in 1 hour for your protection.</p>
-          <p style="font-size: 14px; color: #666; line-height: 1.5;">If you're having trouble clicking the button, copy and paste this URL into your web browser:</p>
-          <p style="font-size: 13px; color: #999; word-break: break-all; background-color: #f5f5f5; padding: 10px; border-radius: 4px;">${resetLink}</p>
-        </div>
-        
-        <div style="margin-top: 30px; text-align: center; border-top: 1px solid #e0e0e0; padding-top: 20px;">
-          <p style="font-size: 12px; color: #999;">This is an automated message from To-Do App. Please do not reply.</p>
-          <p style="font-size: 12px; color: #999;">&copy; ${currentYear} To-Do App. All rights reserved.</p>
+          
+          <div style="text-align: center; margin: 35px 0 25px;">
+            <a href="${resetLink}" 
+               style="background-color: #6f19d2; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; display: inline-block; font-size: 16px; box-shadow: 0 3px 8px rgba(111,25,210,0.3); transition: all 0.2s ease;">
+              Reset My Password
+            </a>
+          </div>
+          
+          <div style="margin: 30px 0; padding: 20px; background-color: #f5f5f7; border-radius: 6px;">
+            <p style="font-size: 14px; color: #555; line-height: 1.5; margin: 0 0 10px;">If the button above doesn't work, copy and paste this URL into your browser:</p>
+            <p style="font-size: 13px; color: #666; word-break: break-all; background-color: white; padding: 12px; border-radius: 4px; border: 1px solid #e0e0e0; margin: 0; line-height: 1.5;">${resetLink}</p>
+          </div>
+          
+          <p style="font-size: 16px; color: #555; margin: 30px 0 20px; line-height: 1.6; text-align: center;">
+            Need help? <a href="mailto:support@todoapp.com" style="color: #6f19d2; text-decoration: none; font-weight: 500;">Contact our support team</a>
+          </p>
+          
+          <div style="margin-top: 40px; text-align: center; border-top: 1px solid #eaeaea; padding-top: 25px;">
+            <p style="font-size: 14px; color: #999; margin: 0 0 5px;">You're receiving this email because a password reset was requested for your To-Do App account.</p>
+            <p style="font-size: 13px; color: #999; margin: 0;">© ${currentYear} To-Do App. All rights reserved.</p>
+          </div>
         </div>
       </div>
     `

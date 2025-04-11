@@ -1,6 +1,9 @@
-// Format date as YYYY-MM-DD
+// Format date as YYYY-MM-DD while preserving local date
 const formatDate = (date) => {
-  return date.toISOString().split('T')[0];
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
 };
 
 // Get days of the week as numbers (0-6, where 0 is Sunday)
@@ -58,18 +61,14 @@ const generateHourlyDates = (startDate, endDate, startTime, endTime, hourlyInter
 const generateDailyDates = (startDate, endDate, dailyDays) => {
   const dates = [];
   const currentDate = new Date(startDate);
+  currentDate.setHours(0, 0, 0, 0);
   
-  // If no specific days are selected, assume all days
-  const daysToUse = dailyDays && dailyDays.length > 0 ? dailyDays : 
-    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-  
-  // Convert day names to day numbers (0-6)
-  const dayNumbers = daysToUse.map(day => getDayNumber(day));
-  
+  // Loop until we reach or exceed the end date
   while (currentDate <= endDate) {
-    // Check if current day is in the selected days
-    const currentDayNum = currentDate.getDay();
-    if (dayNumbers.includes(currentDayNum)) {
+    const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDate.getDay()];
+    
+    // Check if this day of week is included in our recurrence pattern
+    if (!dailyDays || dailyDays.includes(dayName)) {
       dates.push(new Date(currentDate));
     }
     
@@ -82,8 +81,82 @@ const generateDailyDates = (startDate, endDate, dailyDays) => {
 
 // Generate dates for weekly recurrence
 const generateWeeklyDates = (startDate, endDate, weeklyDays) => {
-  // Weekly is just like daily but with weekly frequency
-  return generateDailyDates(startDate, endDate, weeklyDays);
+  console.log(`Generating weekly dates from ${startDate.toISOString()} to ${endDate.toISOString()} for days: ${weeklyDays}`);
+  
+  if (!weeklyDays || !Array.isArray(weeklyDays) || weeklyDays.length === 0) {
+    console.warn("No weekly days specified, defaulting to all days");
+    weeklyDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  }
+  
+  const dates = [];
+  const currentDate = new Date(startDate);
+  currentDate.setHours(0, 0, 0, 0);
+  
+  // Get day numbers for the specified days
+  const dayNumbers = weeklyDays.map(day => getDayNumber(day));
+  console.log(`Day numbers for specified days: ${dayNumbers}`);
+
+  // Special handling for short date ranges (less than 7 days)
+  const dateRangeInDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
+  const isShortDateRange = dateRangeInDays <= 7;
+  
+  // Log additional information for debugging short date ranges
+  if (isShortDateRange) {
+    console.log(`Short date range detected: ${dateRangeInDays} days. Ensuring we don't miss any weekdays.`);
+    
+    // Check if any of the specified days actually fall within this range
+    const daysInRange = [];
+    for (let i = 0; i < dateRangeInDays; i++) {
+      const checkDate = new Date(startDate);
+      checkDate.setDate(startDate.getDate() + i);
+      const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][checkDate.getDay()];
+      if (weeklyDays.includes(dayName)) {
+        daysInRange.push(dayName);
+      }
+    }
+    console.log(`Days that fall within this range: ${daysInRange.join(', ') || 'None'}`);
+  }
+  
+  // Loop until we reach or exceed the end date
+  while (currentDate <= endDate) {
+    const currentDayNumber = currentDate.getDay();
+    const currentDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][currentDayNumber];
+    
+    // Check if this day of week is included in our recurrence pattern
+    if (dayNumbers.includes(currentDayNumber)) {
+      dates.push(new Date(currentDate));
+      console.log(`Adding date: ${currentDate.toISOString()} (${currentDayName})`);
+    }
+    
+    // Move to the next day
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  // For short date ranges with no matches, try to find the next occurrence after the end date
+  if (dates.length === 0 && isShortDateRange) {
+    console.log("No dates found within short range, looking for the next occurrence of specified days");
+    
+    // Find the next occurrence of each specified day after the end date
+    let nextDate = new Date(endDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+    
+    // Look up to 7 days beyond the end date to find the next occurrence
+    for (let i = 0; i < 7; i++) {
+      const checkDayNumber = nextDate.getDay();
+      const checkDayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][checkDayNumber];
+      
+      if (dayNumbers.includes(checkDayNumber)) {
+        console.log(`Found next occurrence on ${nextDate.toISOString()} (${checkDayName})`);
+        dates.push(new Date(nextDate));
+        break;
+      }
+      
+      nextDate.setDate(nextDate.getDate() + 1);
+    }
+  }
+  
+  console.log(`Generated ${dates.length} dates for weekly recurrence`);
+  return dates;
 };
 
 // Generate dates for monthly recurrence
@@ -168,15 +241,17 @@ const getPatternDescription = (task) => {
   
   switch (recurrenceType) {
     case 'hourly':
-      return `Every ${task.hourlyInterval} hour(s) from ${task.startTime} to ${task.endTime}`;
+      return `Every ${task.hourlyInterval || 1} hour(s) from ${task.startTime || 'start'} to ${task.endTime || 'end'}`;
     case 'daily':
-      return dailyDays && dailyDays.length === 7 ? 'Every day' : `Every ${dailyDays.join(', ')}`;
+      return (dailyDays && Array.isArray(dailyDays) && dailyDays.length === 7) 
+        ? 'Every day' 
+        : `Every ${Array.isArray(dailyDays) ? dailyDays.join(', ') : 'day'}`;
     case 'weekly':
-      return `Weekly on ${weeklyDays.join(', ')}`;
+      return `Weekly on ${Array.isArray(weeklyDays) ? weeklyDays.join(', ') : 'selected days'}`;
     case 'monthly':
       return monthlyType === 'dayOfMonth' 
-        ? `Monthly on day ${monthlyDate}` 
-        : `Monthly on the ${monthlyWeek} ${monthlyDay}`;
+        ? `Monthly on day ${monthlyDate || ''}` 
+        : `Monthly on the ${monthlyWeek || ''} ${monthlyDay || ''}`;
     default:
       return 'Custom schedule';
   }
@@ -184,9 +259,11 @@ const getPatternDescription = (task) => {
 
 module.exports = {
   formatDate,
+  getDayNumber,
   generateHourlyDates,
   generateDailyDates,
   generateWeeklyDates,
   generateMonthlyDates,
+  findDayOfWeekInMonth,
   getPatternDescription
 };
