@@ -754,3 +754,11 @@ header p {
 .toggle-icon {
   font-size: 1.2rem;
 }
+
+.recurring-tasks-page .task-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
