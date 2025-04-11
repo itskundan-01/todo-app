@@ -116,6 +116,20 @@ function RecurringTasksPage() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === '+' || event.key === '=') {
+        openModal();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
+
   const deleteRecurringTask = async (taskId) => {
     if (!window.confirm('Are you sure you want to delete this recurring task?')) {
       return;

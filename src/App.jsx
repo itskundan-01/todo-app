@@ -263,6 +263,20 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    const handleKeyPress = (event) => {
+      if (event.key === '+' || event.key === '=') {
+        handleAddButtonClick();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, []);
+
   const showNotification = (message, type) => {
     setNotification({ message, type });
   };
