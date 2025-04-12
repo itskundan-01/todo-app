@@ -1,4 +1,5 @@
 const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { sendAiFeatureAnnouncementEmail } = require('../utils/emailService');
 
 /**
  * Process natural language input and return structured task data
@@ -487,10 +488,33 @@ function createEmergencyTask(userInput, taskType) {
       isRecurring: false
     };
   }
-}
+};
+
+// Controller to handle sending AI feature announcement email
+const sendAiFeatureEmail = async (req, res) => {
+  const { name, email } = req.body;
+
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Name and email are required.' });
+  }
+
+  try {
+    const result = await sendAiFeatureAnnouncementEmail(name, email);
+
+    if (result.success) {
+      return res.status(200).json({ message: 'AI feature announcement email sent successfully.' });
+    } else {
+      return res.status(500).json({ error: 'Failed to send email.', details: result.error });
+    }
+  } catch (error) {
+    console.error('Error sending AI feature email:', error);
+    return res.status(500).json({ error: 'An unexpected error occurred.' });
+  }
+};
 
 module.exports = { 
   processTaskInput,
   // Export both names to maintain backward compatibility
-  processAiTaskInput: processTaskInput 
+  processAiTaskInput: processTaskInput,
+  sendAiFeatureEmail
 };

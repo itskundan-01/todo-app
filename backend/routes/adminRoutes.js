@@ -4,7 +4,8 @@ const {
   getUserById, 
   updateUser, 
   deleteUser, 
-  getStatistics 
+  getStatistics,
+  sendAiAnnouncementToAllUsers
 } = require('../controllers/adminController');
 const adminMiddleware = require('../middleware/adminMiddleware');
 
@@ -21,5 +22,8 @@ router.delete('/users/:id', deleteUser);
 
 // Statistics route
 router.get('/statistics', getStatistics);
+
+// Mass email routes
+router.post('/send-ai-announcement', sendAiAnnouncementToAllUsers);
 
 module.exports = router;

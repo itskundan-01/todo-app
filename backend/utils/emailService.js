@@ -125,7 +125,7 @@ const passwordResetEmail = (name, email, resetToken) => {
   const currentYear = new Date().getFullYear();
   
   return {
-    from: `"To-Do App" <${process.env.EMAIL_USER}>`,
+    from: '"To-Do App" <noreply@kundanprojects.space>',
     to: email,
     subject: 'Reset Your To-Do App Password',
     html: `
@@ -192,6 +192,9 @@ const sendEmail = async (mailOptions) => {
   }
 };
 
+// AI Feature Announcement Email Template
+const aiFeatureAnnouncementEmail = require('./aiFeatureAnnouncementEmail');
+
 module.exports = {
   sendWelcomeEmail: async (name, email) => {
     // Email validation already performed during registration, but double-check
@@ -208,6 +211,22 @@ module.exports = {
       return { success: false, error: validation.message };
     }
     return await sendEmail(passwordResetEmail(name, email, resetToken));
+  },
+  sendAiFeatureAnnouncementEmail: async (name, email) => {
+    // Email validation check
+    const validation = validateEmailDomain(email);
+    if (!validation.isValid) {
+      return { success: false, error: validation.message };
+    }
+    
+    // Get the complete email object from the template
+    const emailContent = aiFeatureAnnouncementEmail(name);
+    
+    // Add the recipient email
+    emailContent.to = email;
+    
+    // Send the complete email object
+    return await sendEmail(emailContent);
   },
   validateEmailDomain // Export the validation function for use in registration
 };

@@ -2,6 +2,7 @@ const User = require('../models/User');
 const Task = require('../models/Task');
 const RecurringTask = require('../models/RecurringTask');
 const mongoose = require('mongoose');
+const { sendAiFeatureAnnouncementEmail } = require('../utils/emailService');
 
 // Get all users
 const getAllUsers = async (req, res) => {
@@ -168,10 +169,85 @@ const getStatistics = async (req, res) => {
   }
 };
 
+/**
+ * Send AI feature announcement email to all users
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const sendAiAnnouncementToAllUsers = async (req, res) => {
+  try {
+    // Find all users with valid email addresses
+    const users = await User.find({ email: { $exists: true, $ne: "" } });
+    
+    if (!users || users.length === 0) {
+      return res.status(404).json({ 
+        success: false, 
+        message: 'No users found to send emails to' 
+      });
+    }
+
+    console.log(`Found ${users.length} users to send AI feature announcement emails to`);
+    
+    // Send emails to each user
+    const results = [];
+    let successCount = 0;
+    let failCount = 0;
+    
+    for (const user of users) {
+      try {
+        // Wait a short time between sending emails to avoid rate limits
+        if (results.length > 0) {
+          await new Promise(resolve => setTimeout(resolve, 300));
+        }
+        
+        const result = await sendAiFeatureAnnouncementEmail(user.name || 'Valued User', user.email);
+        
+        if (result.success) {
+          successCount++;
+        } else {
+          failCount++;
+          console.error(`Failed to send email to ${user.email}: ${result.error}`);
+        }
+        
+        results.push({
+          userId: user._id,
+          email: user.email,
+          success: result.success,
+          error: result.error
+        });
+      } catch (emailError) {
+        console.error(`Error sending to ${user.email}:`, emailError);
+        failCount++;
+        results.push({
+          userId: user._id,
+          email: user.email,
+          success: false,
+          error: emailError.message
+        });
+      }
+    }
+    
+    return res.status(200).json({
+      success: true,
+      message: `AI feature announcement sent to users. Success: ${successCount}, Failed: ${failCount}`,
+      results: results
+    });
+    
+  } catch (error) {
+    console.error('Error sending mass emails:', error);
+    return res.status(500).json({ 
+      success: false, 
+      message: 'Error sending mass emails', 
+      error: error.message 
+    });
+  }
+};
+
 module.exports = {
   getAllUsers,
   getUserById,
   updateUser,
   deleteUser,
-  getStatistics
+  getStatistics,
+  sendAiAnnouncementToAllUsers
 };

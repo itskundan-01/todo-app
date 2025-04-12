@@ -7,6 +7,12 @@ function AdminDashboard() {
   const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [sendingEmails, setSendingEmails] = useState(false);
+  const [emailStatus, setEmailStatus] = useState(null);
+  const [individualEmail, setIndividualEmail] = useState({
+    name: '',
+    email: ''
+  });
   
   const user = JSON.parse(localStorage.getItem('user'));
   
@@ -28,6 +34,90 @@ function AdminDashboard() {
     
     fetchStatistics();
   }, []);
+
+  const handleSendAiAnnouncement = async () => {
+    if (!window.confirm('Are you sure you want to send the AI feature announcement to ALL users? This action cannot be undone.')) {
+      return;
+    }
+
+    try {
+      setSendingEmails(true);
+      setEmailStatus(null);
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/admin/send-ai-announcement`,
+        {},
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      
+      setEmailStatus({
+        type: 'success',
+        message: response.data.message || 'Announcement emails sent successfully',
+        details: `${response.data.results?.filter(r => r.success).length || 0} succeeded, ${response.data.results?.filter(r => !r.success).length || 0} failed`
+      });
+    } catch (error) {
+      console.error('Error sending announcement emails:', error);
+      setEmailStatus({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to send announcement emails',
+        details: error.response?.data?.details || error.message
+      });
+    } finally {
+      setSendingEmails(false);
+    }
+  };
+
+  const handleSendIndividualEmail = async (e) => {
+    e.preventDefault();
+    if (!individualEmail.name.trim() || !individualEmail.email.trim()) {
+      setEmailStatus({
+        type: 'error',
+        message: 'Please enter both name and email',
+        details: 'Both fields are required'
+      });
+      return;
+    }
+
+    try {
+      setSendingEmails(true);
+      setEmailStatus(null);
+      
+      const response = await axios.post(
+        `${API_BASE_URL}/api/ai/send-ai-feature-email`,
+        individualEmail,
+        { headers: { Authorization: `Bearer ${user.token}` } }
+      );
+      
+      setEmailStatus({
+        type: 'success',
+        message: 'Announcement email sent successfully',
+        details: `Email sent to ${individualEmail.email}`
+      });
+      
+      // Reset the form
+      setIndividualEmail({
+        name: '',
+        email: ''
+      });
+    } catch (error) {
+      console.error('Error sending individual announcement email:', error);
+      setEmailStatus({
+        type: 'error',
+        message: error.response?.data?.message || 'Failed to send announcement email',
+        details: error.response?.data?.details || error.message
+      });
+    } finally {
+      setSendingEmails(false);
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setIndividualEmail(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
 
   if (loading) {
     return <div className="admin-loading">Loading dashboard data...</div>;
@@ -67,6 +157,62 @@ function AdminDashboard() {
   return (
     <div className="admin-dashboard">
       <h1>Admin Dashboard</h1>
+      
+      <div className="admin-actions">
+        <div className="action-card">
+          <h3>AI Feature Announcement</h3>
+          <p>Send an email to all users announcing the new AI Task Assistant feature.</p>
+          <button 
+            className="send-announcement-btn"
+            onClick={handleSendAiAnnouncement}
+            disabled={sendingEmails}
+          >
+            {sendingEmails ? 'Sending...' : 'Send Announcement to All Users'}
+          </button>
+          
+          <div className="individual-email-section">
+            <h4>Send to Individual User</h4>
+            <form onSubmit={handleSendIndividualEmail}>
+              <div className="form-group">
+                <input
+                  type="text"
+                  name="name"
+                  placeholder="User's Name"
+                  value={individualEmail.name}
+                  onChange={handleInputChange}
+                  disabled={sendingEmails}
+                  required
+                />
+              </div>
+              <div className="form-group">
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="User's Email"
+                  value={individualEmail.email}
+                  onChange={handleInputChange}
+                  disabled={sendingEmails}
+                  required
+                />
+              </div>
+              <button 
+                type="submit" 
+                className="send-individual-btn"
+                disabled={sendingEmails}
+              >
+                {sendingEmails ? 'Sending...' : 'Send to This User'}
+              </button>
+            </form>
+          </div>
+          
+          {emailStatus && (
+            <div className={`email-status ${emailStatus.type}`}>
+              <p>{emailStatus.message}</p>
+              <p className="email-status-details">{emailStatus.details}</p>
+            </div>
+          )}
+        </div>
+      </div>
       
       <div className="stat-cards">
         <div className="stat-card">
