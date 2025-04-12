@@ -419,7 +419,7 @@ function TaskBot({ taskType, onTaskGenerated }) {
             waitingForDate ? "Enter the date (e.g., tomorrow, April 15)" : 
             waitingForTime ? "Enter the time (e.g., 10 AM, 3:30 PM)" :
             taskType === 'regular' 
-              ? "Describe your task (e.g., 'Submit math homework by Friday at 3 PM')" 
+              ? "Describe your task (e.g., 'Submit Math Assignment by 25 January at 3 PM')" 
               : "Describe your recurring task (e.g., 'Weekly team meeting every Tuesday at 10 AM')"
           }
           disabled={isProcessing}
