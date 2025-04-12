@@ -170,12 +170,18 @@ function HomePage({ navigateToTasks, navigateToRecurringTasks, isGuest, onGetSta
       </section>
       
       <section className="upcoming-section" id="upcoming-features" aria-labelledby="upcoming-features-heading">
-        <h2 id="upcoming-features-heading">Coming Soon</h2>
+        <h2 id="upcoming-features-heading">Featured Capabilities</h2>
         
-        <div className="upcoming-feature">
+        <div className="upcoming-feature available-feature">
           <h3>✨ AI Task Assistant</h3>
-          <p>Our AI will help you plan your study schedule or work priorities by analyzing your patterns and recommending optimal task arrangements.</p>
-          <p><em>Coming soon</em></p>
+          <p>Our AI helps you plan your study schedule or work priorities by analyzing your patterns and recommending optimal task arrangements.</p>
+          <button 
+            className="feature-access-btn" 
+            onClick={handleTasksClick}
+            aria-label="Try AI Task Assistant"
+          >
+            {isGuest ? "Sign In to Try AI Assistant" : "Try AI Assistant"}
+          </button>
         </div>
         
         <div className="upcoming-feature available-feature">

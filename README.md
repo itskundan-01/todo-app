@@ -27,6 +27,13 @@ A comprehensive task management application designed to help students and profes
 - Automatic task generation based on recurrence patterns
 - Flexible date range selection for recurring tasks
 
+### AI Task Assistant
+- Natural language processing for task creation
+- AI-powered suggestions for task scheduling and organization
+- Intelligent date and time extraction from user input
+- Conversational interface for task creation
+- Support for both regular and recurring task generation
+
 ### User Experience
 - Responsive design for desktop and mobile devices
 - Intuitive navigation between task views
