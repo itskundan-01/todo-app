@@ -1,24 +1,17 @@
 const nodemailer = require('nodemailer');
 
+// Enhanced logging for email configuration
 console.log('Initializing email service with settings:');
-console.log(`- Host: ${process.env.EMAIL_HOST || 'smtppro.zoho.in'}`);
-console.log(`- Port: ${process.env.EMAIL_PORT || '465'}`);
-console.log(`- Secure: ${process.env.EMAIL_SECURE === 'true' ? 'true' : 'false'}`);
+console.log(`- Service: Gmail`);
 console.log(`- User: ${process.env.EMAIL_USER || '[not set]'}`);
 console.log(`- Password: ${process.env.EMAIL_PASSWORD ? '[set]' : '[not set]'}`);
 
-// Create a transporter object using Zoho SMTP with SSL
+// Create a transporter object using Gmail SMTP
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtppro.zoho.in',
-  port: parseInt(process.env.EMAIL_PORT || 465),
-  secure: process.env.EMAIL_SECURE === 'true', // true for port 465, false for other ports
+  service: 'gmail', // Use Gmail's predefined settings
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASSWORD
-  },
-  tls: {
-    // Do not fail on invalid certificates
-    rejectUnauthorized: false
   },
   debug: true // Enable debug logs
 });
@@ -30,6 +23,17 @@ transporter.verify(function(error, success) {
     console.error('Error code:', error.code);
     console.error('Error message:', error.message);
     console.error('Error command:', error.command);
+    
+    // Special handling for Gmail authentication errors
+    if (error.code === 'EAUTH') {
+      console.error('\n===== GMAIL AUTHENTICATION ERROR =====');
+      console.error('This error occurs when Gmail rejects your login credentials.');
+      console.error('You need to:');
+      console.error('1. Enable 2-Step Verification in your Google Account');
+      console.error('2. Generate an App Password at https://myaccount.google.com/apppasswords');
+      console.error('3. Update your .env file with the new app password');
+      console.error('======================================\n');
+    }
   } else {
     console.log('SMTP server connection successfully established, ready to send emails');
   }
@@ -37,8 +41,8 @@ transporter.verify(function(error, success) {
 
 // Email domain validation function
 const validateEmailDomain = (email) => {
-  // List of accepted domains
-  const acceptedDomains = ['gmail.com'];
+  // List of accepted domains - expanding to allow more email providers
+  const acceptedDomains = ['gmail.com', 'yahoo.com', 'outlook.com', 'hotmail.com', 'kundanprojects.space'];
   
   // Basic email format validation
   const emailRegex = /^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/;
@@ -52,15 +56,15 @@ const validateEmailDomain = (email) => {
   // Extract domain from email
   const domain = email.split('@')[1].toLowerCase();
   
-  // Check if domain is in accepted list
-  if (!acceptedDomains.includes(domain)) {
-    return { 
-      isValid: false,
-      message: `Currently only ${acceptedDomains.join(', ')} email addresses are accepted`
-    };
+  // Allow all domains in development mode or check against accepted domains
+  if (process.env.NODE_ENV === 'development' || acceptedDomains.includes(domain)) {
+    return { isValid: true, message: '' };
   }
   
-  return { isValid: true, message: '' };
+  return { 
+    isValid: false,
+    message: `Currently only ${acceptedDomains.join(', ')} email addresses are accepted`
+  };
 };
 
 // Welcome email template
@@ -125,7 +129,7 @@ const passwordResetEmail = (name, email, resetToken) => {
   const currentYear = new Date().getFullYear();
   
   return {
-    from: '"To-Do App" <noreply@kundanprojects.space>',
+    from: `"To-Do App" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Reset Your To-Do App Password',
     html: `

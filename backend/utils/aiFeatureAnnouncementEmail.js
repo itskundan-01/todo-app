@@ -2,7 +2,7 @@ const generateAiFeatureAnnouncementEmail = (recipientName) => {
   const currentYear = new Date().getFullYear();
 
   return {
-    from: '"To-Do App" <noreply@kundanprojects.space>',
+    from: `"To-Do App" <${process.env.EMAIL_USER}>`,
     subject: 'Introducing Our New AI Feature!',
     html: `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9fa;">
